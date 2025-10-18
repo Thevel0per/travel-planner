@@ -1,12 +1,12 @@
-# Product Requirements Document (PRD) - VibeTravels
+# Product Requirements Document (PRD) - TravelPlanner
 
 ## 1. Product Overview
 
-VibeTravels is an AI-powered travel planning application designed to simplify the process of creating engaging and personalized trips. By leveraging the capabilities of GPT-4o-mini, the application transforms users' simple notes and preferences into detailed, structured travel itineraries. The Minimum Viable Product (MVP) focuses on core functionalities, including user account management, trip and note organization, and AI-driven plan generation. The primary goal is to help users effortlessly plan their leisure trips by providing concrete, actionable plans based on their unique travel style.
+TravelPlanner is an AI-powered travel planning application designed to simplify the process of creating engaging and personalized trips. By leveraging the capabilities of GPT-4o-mini, the application transforms users' simple notes and preferences into detailed, structured travel itineraries. The Minimum Viable Product (MVP) focuses on core functionalities, including user account management, trip and note organization, and AI-driven plan generation. The primary goal is to help users effortlessly plan their leisure trips by providing concrete, actionable plans based on their unique travel style.
 
 ## 2. User Problem
 
-Planning engaging and interesting trips is often a difficult, time-consuming, and overwhelming process. Travelers struggle to organize their ideas, research destinations, estimate costs, and create coherent itineraries that match their personal preferences. This leads to generic or poorly planned trips that don't meet their expectations. VibeTravels addresses this by providing a tool that streamlines the planning process, using AI to convert scattered ideas into a well-structured and personalized travel plan, saving users time and effort.
+Planning engaging and interesting trips is often a difficult, time-consuming, and overwhelming process. Travelers struggle to organize their ideas, research destinations, estimate costs, and create coherent itineraries that match their personal preferences. This leads to generic or poorly planned trips that don't meet their expectations. TravelPlanner addresses this by providing a tool that streamlines the planning process, using AI to convert scattered ideas into a well-structured and personalized travel plan, saving users time and effort.
 
 ## 3. Functional Requirements
 

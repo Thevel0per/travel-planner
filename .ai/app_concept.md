@@ -1,7 +1,7 @@
-# Application - VibeTravels (MVP)
+# Application - TravelPlanner (MVP)
 
 ### Main Problem
-Planning engaging and interesting trips is difficult. By leveraging the potential, creativity, and knowledge of AI, VibeTravels allows you to transform simplified notes about places and travel destinations into concrete plans.
+Planning engaging and interesting trips is difficult. By leveraging the potential, creativity, and knowledge of AI, TravelPlanner allows you to transform simplified notes about places and travel destinations into concrete plans.
 
 ### Minimum Viable Product Features
 - Saving, reading, browsing, and deleting notes about future trips
