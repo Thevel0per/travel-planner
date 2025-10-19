@@ -10,9 +10,52 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_18_225319) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_19_153345) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "generated_plans", force: :cascade do |t|
+    t.bigint "trip_id", null: false
+    t.text "content", null: false
+    t.string "status", default: "pending", null: false
+    t.integer "rating"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["status"], name: "index_generated_plans_on_status"
+    t.index ["trip_id"], name: "index_generated_plans_on_trip_id"
+  end
+
+  create_table "notes", force: :cascade do |t|
+    t.bigint "trip_id", null: false
+    t.text "content", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["trip_id"], name: "index_notes_on_trip_id"
+  end
+
+  create_table "trips", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "name", null: false
+    t.string "destination", null: false
+    t.date "start_date", null: false
+    t.date "end_date", null: false
+    t.integer "number_of_people", default: 1, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id", "destination"], name: "index_trips_on_user_id_and_destination"
+    t.index ["user_id", "start_date"], name: "index_trips_on_user_id_and_start_date"
+  end
+
+  create_table "user_preferences", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "budget"
+    t.string "accommodation"
+    t.string "activities"
+    t.string "eating_habits"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_user_preferences_on_user_id", unique: true
+  end
 
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
@@ -30,4 +73,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_18_225319) do
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
+
+  add_foreign_key "generated_plans", "trips"
+  add_foreign_key "notes", "trips"
+  add_foreign_key "trips", "users"
+  add_foreign_key "user_preferences", "users"
 end
