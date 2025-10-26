@@ -42,6 +42,12 @@ gem 'thruster', require: false
 # Authentication
 gem 'devise', '~> 4.9'
 
+# Type checking with Sorbet
+gem 'sorbet-runtime'
+
+# Pagination
+gem 'pagy', '~> 9.0'
+
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
 # gem "image_processing", "~> 1.2"
 
@@ -59,6 +65,10 @@ group :development, :test do
   gem 'rspec-rails', '~> 7.0'
   gem 'factory_bot_rails', '~> 6.4'
   gem 'shoulda-matchers', '~> 6.0'
+
+  # Sorbet static type checker
+  gem 'sorbet'
+  gem 'tapioca', require: false
 end
 
 group :development do

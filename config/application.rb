@@ -36,6 +36,10 @@ module TravelPlanner
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
 
+    # Add app/types and app/services to autoload paths
+    config.autoload_paths += %W[#{config.root}/app/types #{config.root}/app/services]
+    config.eager_load_paths += %W[#{config.root}/app/types #{config.root}/app/services]
+
     # Don't generate system test files.
     config.generators.system_tests = nil
   end
