@@ -10,7 +10,9 @@ Rails.application.routes.draw do
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
+  # Trips resource - RESTful routes for trip management
+  resources :trips, only: [ :index, :show, :new, :create, :edit, :update, :destroy ]
+
   # Defines the root path route ("/")
-  # root "posts#index"
-  root 'home#index'
+  root 'trips#index'
 end

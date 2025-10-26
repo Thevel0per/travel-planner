@@ -49,6 +49,9 @@ RSpec.configure do |config|
   # Include FactoryBot methods
   config.include FactoryBot::Syntax::Methods
 
+  # Include Devise test helpers for request specs
+  config.include Devise::Test::IntegrationHelpers, type: :request
+
   # Configure shoulda-matchers
   Shoulda::Matchers.configure do |matchers_config|
     matchers_config.integrate do |with|
