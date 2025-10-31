@@ -1,88 +1,39 @@
-<%# Trip Card Partial - Displays a single trip in the grid %>
+<%# Trip Card Partial - Material Design Card %>
 <%# @param trip [Trip] The trip to display %>
 
-<div class="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200">
-  <!-- Trip Header with Destination -->
-  <div class="p-6 border-b border-gray-100">
-    <div class="flex items-start justify-between">
-      <div class="flex-1 min-w-0">
-        <h3 class="text-lg font-semibold text-gray-900 truncate">
-          <%= trip.name %>
-        </h3>
-        <div class="mt-1 flex items-center text-sm text-gray-600">
-          <svg class="h-4 w-4 mr-1 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
-          <span class="truncate"><%= trip.destination %></span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Trip Details -->
-  <div class="p-6 space-y-4">
-    <!-- Dates -->
-    <div class="flex items-center justify-between text-sm">
-      <div class="flex items-center text-gray-600">
-        <svg class="h-4 w-4 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-        </svg>
-        <span>
-          <%= trip.start_date.strftime("%b %d, %Y") %>
-        </span>
-      </div>
-      <div class="text-gray-400">→</div>
-      <div class="flex items-center text-gray-600">
-        <span>
-          <%= trip.end_date.strftime("%b %d, %Y") %>
-        </span>
-      </div>
-    </div>
-
-    <!-- Duration -->
-    <div class="flex items-center text-sm text-gray-600">
-      <svg class="h-4 w-4 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+<%= link_to trip_path(trip), 
+    class: "relative flex flex-col bg-clip-border rounded-xl bg-white text-gray-700 shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden group",
+    data: { ripple: "light" },
+    "aria-label": "View trip to #{trip.destination}" do %>
+  
+  <!-- Card Content -->
+  <div class="p-6">
+    <!-- Destination Header -->
+    <div class="flex items-start justify-between mb-4">
+      <h5 class="block antialiased tracking-normal font-sans text-xl font-semibold leading-snug text-blue-gray-900 truncate flex-1 group-hover:text-blue-600 transition-colors">
+        <%= trip.destination %>
+      </h5>
+      <svg class="w-5 h-5 text-gray-400 group-hover:text-blue-600 transition-colors flex-shrink-0 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
       </svg>
-      <span>
-        <%= (trip.end_date - trip.start_date).to_i + 1 %> 
-        <%= (trip.end_date - trip.start_date).to_i + 1 == 1 ? "day" : "days" %>
-      </span>
     </div>
-
-    <!-- Number of People -->
-    <div class="flex items-center text-sm text-gray-600">
-      <svg class="h-4 w-4 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+    
+    <!-- Trip Dates -->
+    <div class="flex items-center text-sm text-gray-600 mt-3">
+      <svg class="w-4 h-4 mr-2 text-blue-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
       </svg>
-      <span>
-        <%= trip.number_of_people %> 
-        <%= trip.number_of_people == 1 ? "person" : "people" %>
-      </span>
-    </div>
-
-    <!-- Stats: Notes and Plans (if available from counter cache or loaded associations) -->
-    <div class="pt-4 border-t border-gray-100 flex items-center gap-4">
-      <div class="flex items-center text-xs text-gray-500">
-        <svg class="h-4 w-4 mr-1 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-        </svg>
-        <%= trip.notes.loaded? ? trip.notes.size : trip.notes.count %> notes
-      </div>
-      <div class="flex items-center text-xs text-gray-500">
-        <svg class="h-4 w-4 mr-1 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-        </svg>
-        <%= trip.generated_plans.loaded? ? trip.generated_plans.size : trip.generated_plans.count %> plans
-      </div>
+      <time datetime="<%= trip.start_date.iso8601 %>" class="text-sm antialiased font-normal leading-relaxed text-gray-700">
+        <%= trip.start_date.strftime('%b %-d, %Y') %>
+      </time>
+      <span class="mx-2 text-gray-500">—</span>
+      <time datetime="<%= trip.end_date.iso8601 %>" class="text-sm antialiased font-normal leading-relaxed text-gray-700">
+        <%= trip.end_date.strftime('%b %-d, %Y') %>
+      </time>
     </div>
   </div>
-
-  <!-- Actions -->
-  <div class="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between gap-3">
-    <%= link_to "View Details", trip_path(trip), class: "flex-1 text-center px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500", data: { turbo: false } %>
-    <%= link_to "Edit", edit_trip_path(trip), class: "flex-1 text-center px-4 py-2 bg-indigo-600 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-indigo-700 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500", data: { turbo: false } %>
-  </div>
-</div>
+  
+  <!-- Hover overlay effect -->
+  <div class="absolute inset-0 bg-blue-500 opacity-0 group-hover:opacity-5 transition-opacity duration-300"></div>
+<% end %>
 

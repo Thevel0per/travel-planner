@@ -1,0 +1,17 @@
+<%# Material Design Floating Action Button %>
+<%= link_to new_trip_path, 
+    class: "!fixed !bottom-8 !right-8 flex items-center justify-center select-none font-sans font-bold text-center uppercase transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none w-14 h-14 rounded-full bg-blue-600 text-white shadow-lg shadow-blue-500/20 hover:shadow-xl hover:shadow-blue-500/40 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85] active:shadow-none z-50 group",
+    data: { ripple: "light" },
+    "aria-label": "Create new trip",
+    role: "button",
+    title: "Create new trip" do %>
+  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+  </svg>
+  
+  <%# Material Design Tooltip %>
+  <span class="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-gray-900 text-white text-xs font-medium px-3 py-2 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-50" role="tooltip">
+    Create New Trip
+  </span>
+<% end %>
+
