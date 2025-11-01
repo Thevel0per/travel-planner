@@ -1,2 +1,4 @@
 /tmp/cache/
 log/
+/app/assets/builds/**
+.DS_Store
