@@ -88,7 +88,7 @@ The API is organized around the following main resources:
 }
 ```
 - **Error Responses:**
-  - `422 Unprocessable Entity`: Validation errors
+  - `422 Unprocessable Content`: Validation errors
     ```json
     {
       "errors": {
@@ -178,7 +178,7 @@ The API is organized around the following main resources:
 ```
 - **Error Responses:**
   - `404 Not Found`: Trip not found
-  - `422 Unprocessable Entity`: Validation errors
+  - `422 Unprocessable Content`: Validation errors
 
 #### Delete Trip
 - **Method:** `DELETE`
@@ -266,7 +266,7 @@ The API is organized around the following main resources:
 ```
 - **Error Responses:**
   - `404 Not Found`: Trip not found
-  - `422 Unprocessable Entity`: Validation errors
+  - `422 Unprocessable Content`: Validation errors
     ```json
     {
       "errors": {
@@ -322,7 +322,7 @@ The API is organized around the following main resources:
 ```
 - **Error Responses:**
   - `404 Not Found`: Note not found
-  - `422 Unprocessable Entity`: Validation errors
+  - `422 Unprocessable Content`: Validation errors
 
 #### Delete Note
 - **Method:** `DELETE`
@@ -439,7 +439,7 @@ The API is organized around the following main resources:
 }
 ```
 - **Error Responses:**
-  - `422 Unprocessable Entity`: Invalid preference values
+  - `422 Unprocessable Content`: Invalid preference values
     ```json
     {
       "errors": {
@@ -526,7 +526,7 @@ The API is organized around the following main resources:
 ```
 - **Error Responses:**
   - `404 Not Found`: Trip not found
-  - `422 Unprocessable Entity`: Missing required data
+  - `422 Unprocessable Content`: Missing required data
     ```json
     {
       "error": "Cannot generate plan without user preferences. Please set your preferences first."
@@ -637,7 +637,7 @@ The API is organized around the following main resources:
 ```
 - **Error Responses:**
   - `404 Not Found`: Generated plan not found
-  - `422 Unprocessable Entity`: Invalid rating
+  - `422 Unprocessable Content`: Invalid rating
     ```json
     {
       "errors": {
@@ -965,7 +965,7 @@ The application handles errors differently based on request format:
 - `401 Unauthorized`: Not authenticated (redirects to login for HTML)
 - `403 Forbidden`: Authenticated but not authorized
 - `404 Not Found`: Resource not found or user not authorized
-- `422 Unprocessable Entity`: Validation errors (Rails default for form errors)
+- `422 Unprocessable Content`: Validation errors (Rails default for form errors)
 - `429 Too Many Requests`: Rate limit exceeded
 - `500 Internal Server Error`: Server error
 - `503 Service Unavailable`: Temporary service disruption

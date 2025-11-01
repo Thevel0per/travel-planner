@@ -36,6 +36,25 @@ class TripsController < ApplicationController
     end
   end
 
+  # GET /trips/:id
+  # Retrieves a specific trip with its notes and generated plans for the authenticated user
+  # Returns 200 OK with trip data on success, 404 on not found
+  sig { void }
+  def show
+    # Find trip scoped to current user (prevents unauthorized access)
+    # Eager load associations to prevent N+1 queries
+    @trip = current_user.trips.includes(:notes, :generated_plans).find(params[:id])
+
+    # Respond based on requested format
+    respond_to do |format|
+      format.json do
+        dto = DTOs::TripDTO.from_model_with_associations(@trip)
+        render json: { trip: dto.serialize }, status: :ok
+      end
+      format.html { render :show }
+    end
+  end
+
   # POST /trips
   # Creates a new trip for the authenticated user
   # Accepts trip parameters in request body (nested under 'trip' key or flat)

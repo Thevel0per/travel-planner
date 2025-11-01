@@ -386,4 +386,190 @@ RSpec.describe 'Trips', type: :request do
       end
     end
   end
+
+  describe 'GET /trips/:id' do
+    let(:trip) do
+      create(:trip,
+        user:,
+        name: 'Summer Vacation 2025',
+        destination: 'Paris, France',
+        start_date: Date.new(2025, 7, 15),
+        end_date: Date.new(2025, 7, 22),
+        number_of_people: 2)
+    end
+
+    context 'when user is not authenticated' do
+      it 'redirects to sign in page for HTML requests' do
+        get trip_path(trip)
+        expect(response).to redirect_to(new_user_session_path)
+      end
+
+      it 'returns 401 unauthorized for JSON requests' do
+        get trip_path(trip), as: :json
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+
+    context 'when user is authenticated' do
+      before { sign_in user }
+
+      context 'with valid trip ID' do
+        it 'returns 200 OK status for JSON' do
+          get trip_path(trip), as: :json
+          expect(response).to have_http_status(:ok)
+        end
+
+        it 'returns trip data in JSON response' do
+          get trip_path(trip), as: :json
+          json = JSON.parse(response.body)
+
+          expect(json).to have_key('trip')
+          expect(json['trip']['id']).to eq(trip.id)
+          expect(json['trip']['name']).to eq('Summer Vacation 2025')
+          expect(json['trip']['destination']).to eq('Paris, France')
+          expect(json['trip']['start_date']).to eq('2025-07-15')
+          expect(json['trip']['end_date']).to eq('2025-07-22')
+          expect(json['trip']['number_of_people']).to eq(2)
+          expect(json['trip']).to have_key('created_at')
+          expect(json['trip']).to have_key('updated_at')
+        end
+
+        # Note: View template will be implemented in a future session
+        xit 'renders show page for HTML requests' do
+          get trip_path(trip)
+          expect(response).to have_http_status(:ok)
+        end
+
+        context 'with nested notes' do
+          let!(:note1) { Note.create!(trip:, content: 'Visit Eiffel Tower') }
+          let!(:note2) { Note.create!(trip:, content: 'Try French cuisine') }
+
+          it 'includes notes in JSON response' do
+            get trip_path(trip), as: :json
+            json = JSON.parse(response.body)
+
+            expect(json['trip']).to have_key('notes')
+            expect(json['trip']['notes'].length).to eq(2)
+            expect(json['trip']['notes'].first).to have_key('id')
+            expect(json['trip']['notes'].first).to have_key('content')
+            expect(json['trip']['notes'].first).to have_key('trip_id')
+            expect(json['trip']['notes'].first).to have_key('created_at')
+            expect(json['trip']['notes'].first).to have_key('updated_at')
+          end
+
+          it 'includes all note content in response' do
+            get trip_path(trip), as: :json
+            json = JSON.parse(response.body)
+
+            note_contents = json['trip']['notes'].map { |n| n['content'] }
+            expect(note_contents).to contain_exactly('Visit Eiffel Tower', 'Try French cuisine')
+          end
+        end
+
+        context 'with nested generated_plans' do
+          let!(:plan1) do
+            GeneratedPlan.create!(
+              trip:,
+              status: 'completed',
+              content: '{"summary": {}}',
+              rating: 8
+            )
+          end
+          let!(:plan2) do
+            GeneratedPlan.create!(
+              trip:,
+              status: 'pending',
+              content: ''
+            )
+          end
+
+          it 'includes generated_plans in JSON response' do
+            get trip_path(trip), as: :json
+            json = JSON.parse(response.body)
+
+            expect(json['trip']).to have_key('generated_plans')
+            expect(json['trip']['generated_plans'].length).to eq(2)
+            expect(json['trip']['generated_plans'].first).to have_key('id')
+            expect(json['trip']['generated_plans'].first).to have_key('trip_id')
+            expect(json['trip']['generated_plans'].first).to have_key('status')
+            expect(json['trip']['generated_plans'].first).to have_key('created_at')
+            expect(json['trip']['generated_plans'].first).to have_key('updated_at')
+          end
+
+          it 'includes rating for completed plans' do
+            get trip_path(trip), as: :json
+            json = JSON.parse(response.body)
+
+            completed_plan = json['trip']['generated_plans'].find { |p| p['status'] == 'completed' }
+            expect(completed_plan).to have_key('rating')
+            expect(completed_plan['rating']).to eq(8)
+
+            pending_plan = json['trip']['generated_plans'].find { |p| p['status'] == 'pending' }
+            expect(pending_plan['rating']).to be_nil
+          end
+        end
+
+        context 'with both notes and generated_plans' do
+          let!(:note) { Note.create!(trip:, content: 'Remember passport') }
+          let!(:plan) { GeneratedPlan.create!(trip:, status: 'pending', content: '') }
+
+          it 'includes both associations in response' do
+            get trip_path(trip), as: :json
+            json = JSON.parse(response.body)
+
+            expect(json['trip']['notes'].length).to eq(1)
+            expect(json['trip']['generated_plans'].length).to eq(1)
+          end
+        end
+
+        context 'with no associations' do
+          it 'returns empty arrays for notes and generated_plans' do
+            get trip_path(trip), as: :json
+            json = JSON.parse(response.body)
+
+            expect(json['trip']['notes']).to eq([])
+            expect(json['trip']['generated_plans']).to eq([])
+          end
+        end
+      end
+
+      context 'when trip does not exist' do
+        it 'returns 404 Not Found for JSON requests' do
+          get trip_path(999_999), as: :json
+          expect(response).to have_http_status(:not_found)
+        end
+
+        it 'returns error response in correct format' do
+          get trip_path(999_999), as: :json
+          json = JSON.parse(response.body)
+
+          expect(json).to have_key('error')
+          expect(json['error']).to eq('Resource not found')
+        end
+
+        it 'redirects to root with flash message for HTML requests' do
+          get trip_path(999_999)
+          expect(response).to redirect_to(root_path)
+          expect(flash[:alert]).to eq('Resource not found')
+        end
+      end
+
+      context 'when trip belongs to different user' do
+        let(:other_user_trip) { create(:trip, user: other_user, name: 'Other User Trip') }
+
+        it 'returns 404 Not Found (prevents unauthorized access)' do
+          get trip_path(other_user_trip), as: :json
+          expect(response).to have_http_status(:not_found)
+        end
+
+        it 'does not reveal trip existence through error message' do
+          get trip_path(other_user_trip), as: :json
+          json = JSON.parse(response.body)
+
+          expect(json['error']).to eq('Resource not found')
+          # Should not reveal that the trip exists but belongs to another user
+        end
+      end
+    end
+  end
 end
