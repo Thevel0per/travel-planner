@@ -135,7 +135,7 @@ if trip.save
   render json: { trip: dto.serialize }, status: :created
 else
   error = DTOs::ErrorResponseDTO.from_model_errors(trip)
-  render json: error.serialize, status: :unprocessable_entity
+  render json: error.serialize, status: :unprocessable_content
 end
 ```
 
@@ -150,7 +150,7 @@ if @trip.update(command.to_model_attributes)
   render json: { trip: dto.serialize }
 else
   error = DTOs::ErrorResponseDTO.from_model_errors(@trip)
-  render json: error.serialize, status: :unprocessable_entity
+  render json: error.serialize, status: :unprocessable_content
 end
 ```
 

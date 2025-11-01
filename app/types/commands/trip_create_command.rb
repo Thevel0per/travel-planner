@@ -19,11 +19,11 @@ module Commands
     def self.from_params(params)
       trip_params = params[:trip] || params
       new(
-        name: trip_params[:name],
-        destination: trip_params[:destination],
-        start_date: trip_params[:start_date],
-        end_date: trip_params[:end_date],
-        number_of_people: trip_params[:number_of_people] || 1
+        name: trip_params[:name].to_s,
+        destination: trip_params[:destination].to_s,
+        start_date: trip_params[:start_date].to_s,
+        end_date: trip_params[:end_date].to_s,
+        number_of_people: (trip_params[:number_of_people] || 1).to_i
       )
     end
 

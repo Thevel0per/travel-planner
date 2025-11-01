@@ -95,7 +95,7 @@ class TripsController < ApplicationController
       render json: { trip: trip_dto.serialize }, status: :created
     else
       error_dto = DTOs::ErrorResponseDTO.from_model_errors(trip)
-      render json: error_dto.serialize, status: :unprocessable_entity
+      render json: error_dto.serialize, status: :unprocessable_content
     end
   end
 end
@@ -129,7 +129,7 @@ render json: error.serialize, status: :not_found
 
 # Validation errors from model
 error = DTOs::ErrorResponseDTO.from_model_errors(trip)
-render json: error.serialize, status: :unprocessable_entity
+render json: error.serialize, status: :unprocessable_content
 ```
 
 ## Type Definitions
@@ -261,7 +261,7 @@ class NotesController < ApplicationController
       render json: { note: note_dto.serialize }, status: :created
     else
       error_dto = DTOs::ErrorResponseDTO.from_model_errors(note)
-      render json: error_dto.serialize, status: :unprocessable_entity
+      render json: error_dto.serialize, status: :unprocessable_content
     end
   end
 
@@ -273,7 +273,7 @@ class NotesController < ApplicationController
       render json: { note: note_dto.serialize }
     else
       error_dto = DTOs::ErrorResponseDTO.from_model_errors(@note)
-      render json: error_dto.serialize, status: :unprocessable_entity
+      render json: error_dto.serialize, status: :unprocessable_content
     end
   end
 

@@ -40,37 +40,26 @@ RSpec.describe 'Trips', type: :request do
 
       context 'with trips' do
         let!(:trip1) do
-          Trip.create!(
+          create(:trip,
             user:,
             name: 'Summer in Paris',
             destination: 'Paris, France',
             start_date: Date.new(2025, 7, 1),
             end_date: Date.new(2025, 7, 10),
-            number_of_people: 2
-          )
+            number_of_people: 2)
         end
 
         let!(:trip2) do
-          Trip.create!(
+          create(:trip,
             user:,
             name: 'Tokyo Adventure',
             destination: 'Tokyo, Japan',
             start_date: Date.new(2025, 8, 15),
             end_date: Date.new(2025, 8, 25),
-            number_of_people: 3
-          )
+            number_of_people: 3)
         end
 
-        let!(:other_user_trip) do
-          Trip.create!(
-            user: other_user,
-            name: 'Other User Trip',
-            destination: 'New York, USA',
-            start_date: Date.new(2025, 9, 1),
-            end_date: Date.new(2025, 9, 5),
-            number_of_people: 1
-          )
-        end
+        let!(:other_user_trip) { create(:trip, user: other_user, name: 'Other User Trip', destination: 'New York, USA') }
 
         it 'returns only current user trips' do
           get trips_path, as: :json
@@ -123,16 +112,7 @@ RSpec.describe 'Trips', type: :request do
       context 'pagination' do
         before do
           # Create 25 trips
-          25.times do |i|
-            Trip.create!(
-              user:,
-              name: "Trip #{i + 1}",
-              destination: "Destination #{i + 1}",
-              start_date: Date.today + i.days,
-              end_date: Date.today + (i + 3).days,
-              number_of_people: 2
-            )
-          end
+          create_list(:trip, 25, user:)
         end
 
         it 'returns default 20 items per page' do
@@ -180,27 +160,8 @@ RSpec.describe 'Trips', type: :request do
       end
 
       context 'filtering by destination' do
-        let!(:paris_trip) do
-          Trip.create!(
-            user:,
-            name: 'Paris Trip',
-            destination: 'Paris, France',
-            start_date: Date.today,
-            end_date: Date.today + 5.days,
-            number_of_people: 2
-          )
-        end
-
-        let!(:tokyo_trip) do
-          Trip.create!(
-            user:,
-            name: 'Tokyo Trip',
-            destination: 'Tokyo, Japan',
-            start_date: Date.today + 10.days,
-            end_date: Date.today + 15.days,
-            number_of_people: 2
-          )
-        end
+        let!(:paris_trip) { create(:trip, user:, name: 'Paris Trip', destination: 'Paris, France') }
+        let!(:tokyo_trip) { create(:trip, user:, name: 'Tokyo Trip', destination: 'Tokyo, Japan') }
 
         it 'filters trips by destination (partial match)' do
           get trips_path, params: { destination: 'Paris' }, as: :json
@@ -228,27 +189,8 @@ RSpec.describe 'Trips', type: :request do
       end
 
       context 'sorting' do
-        let!(:future_trip) do
-          Trip.create!(
-            user:,
-            name: 'Future Trip',
-            destination: 'Future Destination',
-            start_date: Date.today + 30.days,
-            end_date: Date.today + 35.days,
-            number_of_people: 2
-          )
-        end
-
-        let!(:near_trip) do
-          Trip.create!(
-            user:,
-            name: 'Near Trip',
-            destination: 'Near Destination',
-            start_date: Date.today + 5.days,
-            end_date: Date.today + 10.days,
-            number_of_people: 2
-          )
-        end
+        let!(:future_trip) { create(:trip, user:, name: 'Future Trip', start_date: Date.today + 30.days, end_date: Date.today + 35.days) }
+        let!(:near_trip) { create(:trip, user:, name: 'Near Trip', start_date: Date.today + 5.days, end_date: Date.today + 10.days) }
 
         it 'sorts by start_date ascending by default' do
           get trips_path, as: :json
@@ -303,38 +245,9 @@ RSpec.describe 'Trips', type: :request do
       end
 
       context 'combined filters' do
-        let!(:paris_trip1) do
-          Trip.create!(
-            user:,
-            name: 'Early Paris Trip',
-            destination: 'Paris, France',
-            start_date: Date.today + 5.days,
-            end_date: Date.today + 10.days,
-            number_of_people: 2
-          )
-        end
-
-        let!(:paris_trip2) do
-          Trip.create!(
-            user:,
-            name: 'Late Paris Trip',
-            destination: 'Paris, France',
-            start_date: Date.today + 20.days,
-            end_date: Date.today + 25.days,
-            number_of_people: 3
-          )
-        end
-
-        let!(:tokyo_trip) do
-          Trip.create!(
-            user:,
-            name: 'Tokyo Trip',
-            destination: 'Tokyo, Japan',
-            start_date: Date.today + 15.days,
-            end_date: Date.today + 18.days,
-            number_of_people: 1
-          )
-        end
+        let!(:paris_trip1) { create(:trip, user:, name: 'Early Paris Trip', destination: 'Paris, France', start_date: Date.today + 5.days, end_date: Date.today + 10.days) }
+        let!(:paris_trip2) { create(:trip, user:, name: 'Late Paris Trip', destination: 'Paris, France', start_date: Date.today + 20.days, end_date: Date.today + 25.days, number_of_people: 3) }
+        let!(:tokyo_trip) { create(:trip, user:, name: 'Tokyo Trip', destination: 'Tokyo, Japan', start_date: Date.today + 15.days, end_date: Date.today + 18.days, number_of_people: 1) }
 
         it 'applies both filtering and sorting' do
           get trips_path,
@@ -358,6 +271,117 @@ RSpec.describe 'Trips', type: :request do
           expect(json['trips'].length).to eq(1)
           expect(json['trips'].first['name']).to eq('Early Paris Trip')
           expect(json['meta']['total_count']).to eq(2)
+        end
+      end
+    end
+  end
+
+  describe 'POST /trips' do
+    let(:valid_trip_params) do
+      {
+        trip: {
+          name: 'Summer Vacation 2025',
+          destination: 'Paris, France',
+          start_date: '2025-07-15',
+          end_date: '2025-07-22',
+          number_of_people: 2
+        }
+      }
+    end
+    let(:mock_service) { instance_double(Trips::Create) }
+
+    context 'when user is not authenticated' do
+      it 'redirects to sign in page for HTML requests' do
+        post trips_path, params: valid_trip_params
+        expect(response).to redirect_to(new_user_session_path)
+      end
+
+      it 'returns 401 unauthorized for JSON requests' do
+        post trips_path, params: valid_trip_params, as: :json
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+
+    context 'when user is authenticated' do
+      before { sign_in user }
+
+      context 'with valid parameters' do
+        let(:trip) { create(:trip, user:, name: 'Summer Vacation 2025', destination: 'Paris, France', start_date: Date.new(2025, 7, 15), end_date: Date.new(2025, 7, 22), number_of_people: 2) }
+
+        before do
+          allow(Trips::Create).to receive(:new).and_return(mock_service)
+          allow(mock_service).to receive(:call).and_return(trip)
+        end
+
+        it 'calls Trips::Create service with correct arguments' do
+          expect(Trips::Create).to receive(:new).with(user:, command: instance_of(Commands::TripCreateCommand)).and_return(mock_service)
+          expect(mock_service).to receive(:call).and_return(trip)
+
+          post trips_path, params: valid_trip_params, as: :json
+        end
+
+        it 'returns 201 Created status' do
+          post trips_path, params: valid_trip_params, as: :json
+          expect(response).to have_http_status(:created)
+        end
+
+        it 'returns trip data in JSON response' do
+          post trips_path, params: valid_trip_params, as: :json
+          json = JSON.parse(response.body)
+
+          expect(json).to have_key('trip')
+          expect(json['trip']).to have_key('id')
+          expect(json['trip']['name']).to eq('Summer Vacation 2025')
+          expect(json['trip']['destination']).to eq('Paris, France')
+          expect(json['trip']['start_date']).to eq('2025-07-15')
+          expect(json['trip']['end_date']).to eq('2025-07-22')
+          expect(json['trip']['number_of_people']).to eq(2)
+        end
+
+        it 'accepts flat parameter format (without trip key)' do
+          flat_params = {
+            name: 'Flat Format Trip',
+            destination: 'Tokyo, Japan',
+            start_date: '2025-08-01',
+            end_date: '2025-08-10',
+            number_of_people: 3
+          }
+
+          flat_trip = create(:trip, user:, name: 'Flat Format Trip', destination: 'Tokyo, Japan', start_date: Date.new(2025, 8, 1), end_date: Date.new(2025, 8, 10), number_of_people: 3)
+          allow(mock_service).to receive(:call).and_return(flat_trip)
+
+          post trips_path, params: flat_params, as: :json
+          expect(response).to have_http_status(:created)
+
+          json = JSON.parse(response.body)
+          expect(json['trip']['name']).to eq('Flat Format Trip')
+        end
+      end
+
+      context 'with validation errors' do
+        let(:invalid_trip) do
+          build(:trip, user:, name: '', destination: '').tap do |t|
+            t.valid? # Trigger validations
+          end
+        end
+
+        before do
+          allow(Trips::Create).to receive(:new).and_return(mock_service)
+          allow(mock_service).to receive(:call).and_return(invalid_trip)
+        end
+
+        it 'returns 422 Unprocessable Entity for validation errors' do
+          post trips_path, params: valid_trip_params.deep_merge(trip: { name: '' }), as: :json
+          expect(response).to have_http_status(:unprocessable_content)
+        end
+
+        it 'returns validation errors in JSON format' do
+          post trips_path, params: valid_trip_params.deep_merge(trip: { name: '', destination: '' }), as: :json
+
+          json = JSON.parse(response.body)
+          expect(json).to have_key('errors')
+          expect(json['errors']).to have_key('name')
+          expect(json['errors']).to have_key('destination')
         end
       end
     end

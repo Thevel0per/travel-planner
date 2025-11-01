@@ -6,7 +6,6 @@ class ApplicationController < ActionController::Base
   include Pagy::Backend
 
   # Comprehensive error handling for all controllers
-  rescue_from StandardError, with: :handle_server_error
   rescue_from ActionController::ParameterMissing, with: :handle_bad_request
   rescue_from ActiveRecord::RecordNotFound, with: :handle_not_found
   rescue_from Pagy::OverflowError, with: :handle_pagination_overflow
