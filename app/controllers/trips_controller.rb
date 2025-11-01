@@ -6,7 +6,7 @@ class TripsController < ApplicationController
 
   # Ensure user is authenticated before accessing any trip actions
   before_action :authenticate_user!
-  before_action :set_trip, only: [ :show, :update ]
+  before_action :set_trip, only: [ :show, :update, :destroy ]
 
   # GET /trips
   # Lists all trips for the authenticated user with pagination, filtering, and sorting
@@ -127,6 +127,25 @@ class TripsController < ApplicationController
           flash[:alert] = format_errors_for_flash(@trip.errors.messages.transform_keys(&:to_s))
           redirect_to edit_trip_path(@trip)
         end
+      end
+    end
+  end
+
+  # DELETE /trips/:id
+  # Deletes an existing trip for the authenticated user
+  # Cascades deletion to all associated notes and generated plans
+  # Returns 200 OK with success message on success, 404 on not found
+  sig { void }
+  def destroy
+    @trip.destroy
+
+    respond_to do |format|
+      format.json do
+        render json: { message: 'Trip deleted successfully' }, status: :ok
+      end
+      format.html do
+        flash[:notice] = 'Trip deleted successfully'
+        redirect_to trips_path
       end
     end
   end

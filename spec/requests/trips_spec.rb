@@ -781,4 +781,103 @@ RSpec.describe 'Trips', type: :request do
       end
     end
   end
+
+  describe 'DELETE /trips/:id' do
+    let(:trip) do
+      create(:trip,
+        user:,
+        name: 'Trip to Delete',
+        destination: 'Paris, France',
+        start_date: Date.new(2025, 7, 15),
+        end_date: Date.new(2025, 7, 22),
+        number_of_people: 2)
+    end
+
+    context 'when user is not authenticated' do
+      it 'redirects to sign in page for HTML requests' do
+        delete trip_path(trip)
+        expect(response).to redirect_to(new_user_session_path)
+      end
+
+      it 'returns 401 unauthorized for JSON requests' do
+        delete trip_path(trip), as: :json
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+
+    context 'when user is authenticated' do
+      before { sign_in user }
+
+      context 'with valid trip ID' do
+        it 'returns 200 OK status for JSON' do
+          delete trip_path(trip), as: :json
+          expect(response).to have_http_status(:ok)
+        end
+
+        it 'returns success message in JSON response' do
+          delete trip_path(trip), as: :json
+          json = JSON.parse(response.body)
+
+          expect(json).to have_key('message')
+          expect(json['message']).to eq('Trip deleted successfully')
+        end
+
+        it 'deletes the trip from database' do
+          trip_id = trip.id # Ensure trip is created before the expect block
+          expect { delete trip_path(trip), as: :json }.to change(Trip, :count).by(-1)
+          expect(Trip.find_by(id: trip_id)).to be_nil
+        end
+
+        it 'redirects to trips index with flash message for HTML requests' do
+          delete trip_path(trip)
+          expect(response).to redirect_to(trips_path)
+          expect(flash[:notice]).to eq('Trip deleted successfully')
+        end
+      end
+
+      context 'when trip does not exist' do
+        it 'returns 404 Not Found for JSON requests' do
+          delete trip_path(999_999), as: :json
+          expect(response).to have_http_status(:not_found)
+        end
+
+        it 'returns error response in correct format' do
+          delete trip_path(999_999), as: :json
+          json = JSON.parse(response.body)
+
+          expect(json).to have_key('error')
+          expect(json['error']).to eq('Resource not found')
+        end
+
+        it 'redirects to root with flash message for HTML requests' do
+          delete trip_path(999_999)
+          expect(response).to redirect_to(root_path)
+          expect(flash[:alert]).to eq('Resource not found')
+        end
+      end
+
+      context 'when trip belongs to different user' do
+        let(:other_user_trip) { create(:trip, user: other_user, name: 'Other User Trip') }
+
+        it 'returns 404 Not Found (prevents unauthorized access)' do
+          delete trip_path(other_user_trip), as: :json
+          expect(response).to have_http_status(:not_found)
+        end
+
+        it 'does not reveal trip existence through error message' do
+          delete trip_path(other_user_trip), as: :json
+          json = JSON.parse(response.body)
+
+          expect(json['error']).to eq('Resource not found')
+          # Should not reveal that the trip exists but belongs to another user
+        end
+
+        it 'does not delete trip belonging to another user' do
+          other_user_trip_id = other_user_trip.id # Ensure trip is created before the expect block
+          expect { delete trip_path(other_user_trip), as: :json }.not_to change(Trip, :count)
+          expect(Trip.find_by(id: other_user_trip_id)).to be_present
+        end
+      end
+    end
+  end
 end
