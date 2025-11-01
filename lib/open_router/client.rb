@@ -50,14 +50,14 @@ module OpenRouter
       schema:,
       model: DEFAULT_MODEL,
       temperature: 0.7,
-      max_tokens: 4000
+      max_tokens: 16000
     )
       payload = build_request_payload(
-        model: model,
-        messages: messages,
-        schema: schema,
-        temperature: temperature,
-        max_tokens: max_tokens
+        model:,
+        messages:,
+        schema:,
+        temperature:,
+        max_tokens:
       )
 
       execute_request_with_retry(payload)
@@ -67,7 +67,7 @@ module OpenRouter
     def test_connection
       begin
         response = chat_completion_with_schema(
-          messages: [{ 'role' => 'user', 'content' => 'Hello' }],
+          messages: [ { 'role' => 'user', 'content' => 'Hello' } ],
           schema: { 'type' => 'object', 'properties' => { 'response' => { 'type' => 'string' } } }
         )
         response.success?
@@ -89,18 +89,18 @@ module OpenRouter
     end
     def build_request_payload(model:, messages:, schema:, temperature:, max_tokens:)
       {
-        model: model,
-        messages: messages,
+        model:,
+        messages:,
         response_format: {
           type: 'json_schema',
           json_schema: {
             name: 'response_schema',
             strict: true,
-            schema: schema
+            schema:
           }
         },
-        temperature: temperature,
-        max_tokens: max_tokens
+        temperature:,
+        max_tokens:
       }
     end
 
@@ -173,7 +173,7 @@ module OpenRouter
         raise AuthenticationError, 'Invalid API key'
       when 429
         retry_after = response['Retry-After']&.to_i
-        raise RateLimitError.new('Rate limit exceeded', retry_after: retry_after)
+        raise RateLimitError.new('Rate limit exceeded', retry_after:)
       when 500..599
         raise ServerError.new("Server error: #{response.message}", status_code: response.code.to_i)
       else
@@ -190,7 +190,7 @@ module OpenRouter
       raise ResponseParsingError, 'Missing content in response' if content.nil?
 
       Response.success(
-        content: content,
+        content:,
         usage: usage || {},
         raw_response: body
       )
@@ -200,7 +200,7 @@ module OpenRouter
 
     sig { params(attempt: Integer).returns(Integer) }
     def exponential_backoff(attempt)
-      [2**attempt, 32].min
+      [ 2**attempt, 32 ].min
     end
 
     sig { params(attempt: Integer, error: Error, wait_time: Integer).void }
@@ -215,4 +215,3 @@ module OpenRouter
     end
   end
 end
-

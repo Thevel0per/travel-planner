@@ -62,8 +62,8 @@ module Schemas
       data = JSON.parse(json_string, symbolize_names: true)
 
       summary = TripSummarySchema.new(
-        total_cost_usd: data[:summary][:total_cost_usd],
-        cost_per_person_usd: data[:summary][:cost_per_person_usd],
+        total_cost_usd: data[:summary][:total_cost_usd].to_f,
+        cost_per_person_usd: data[:summary][:cost_per_person_usd].to_f,
         duration_days: data[:summary][:duration_days],
         number_of_people: data[:summary][:number_of_people]
       )
@@ -74,9 +74,9 @@ module Schemas
             time: activity_data[:time],
             name: activity_data[:name],
             duration_minutes: activity_data[:duration_minutes],
-            estimated_cost_usd: activity_data[:estimated_cost_usd],
-            estimated_cost_per_person_usd: activity_data[:estimated_cost_per_person_usd],
-            rating: activity_data[:rating],
+            estimated_cost_usd: activity_data[:estimated_cost_usd].to_f,
+            estimated_cost_per_person_usd: activity_data[:estimated_cost_per_person_usd].to_f,
+            rating: activity_data[:rating].to_f,
             description: activity_data[:description]
           )
         end
@@ -86,8 +86,8 @@ module Schemas
             meal: restaurant_data[:meal],
             name: restaurant_data[:name],
             cuisine: restaurant_data[:cuisine],
-            estimated_cost_per_person_usd: restaurant_data[:estimated_cost_per_person_usd],
-            rating: restaurant_data[:rating]
+            estimated_cost_per_person_usd: restaurant_data[:estimated_cost_per_person_usd].to_f,
+            rating: restaurant_data[:rating].to_f
           )
         end
 
