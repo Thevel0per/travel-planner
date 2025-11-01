@@ -34,7 +34,7 @@ RSpec.describe 'Trips', type: :request do
         it 'renders index page with empty state for HTML' do
           get trips_path
           expect(response).to have_http_status(:ok)
-          expect(response.body).to include('No trips found')
+          expect(response.body).to include('No trips yet!')
         end
       end
 
@@ -115,8 +115,8 @@ RSpec.describe 'Trips', type: :request do
         it 'renders index page with trip cards for HTML' do
           get trips_path
           expect(response).to have_http_status(:ok)
-          expect(response.body).to include('Summer in Paris')
-          expect(response.body).to include('Tokyo Adventure')
+          expect(response.body).to include('Paris, France')
+          expect(response.body).to include('Tokyo, Japan')
         end
       end
 
