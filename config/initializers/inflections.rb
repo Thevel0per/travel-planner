@@ -14,4 +14,5 @@
 ActiveSupport::Inflector.inflections(:en) do |inflect|
   inflect.acronym 'DTO'
   inflect.acronym 'DTOs'
+  inflect.acronym 'API'
 end
