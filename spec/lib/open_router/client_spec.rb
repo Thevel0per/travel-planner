@@ -5,8 +5,8 @@ require 'webmock/rspec'
 
 RSpec.describe OpenRouter::Client do
   let(:api_key) { 'test-api-key' }
-  let(:client) { described_class.new(api_key: api_key) }
-  let(:messages) { [{ 'role' => 'user', 'content' => 'Hello' }] }
+  let(:client) { described_class.new(api_key:) }
+  let(:messages) { [ { 'role' => 'user', 'content' => 'Hello' } ] }
   let(:schema) do
     {
       'type' => 'object',
@@ -47,8 +47,8 @@ RSpec.describe OpenRouter::Client do
 
       it 'returns a successful response' do
         response = client.chat_completion_with_schema(
-          messages: messages,
-          schema: schema
+          messages:,
+          schema:
         )
 
         expect(response).to be_success
@@ -57,8 +57,8 @@ RSpec.describe OpenRouter::Client do
 
       it 'includes usage information' do
         response = client.chat_completion_with_schema(
-          messages: messages,
-          schema: schema
+          messages:,
+          schema:
         )
 
         expect(response.usage).to be_present
@@ -73,8 +73,8 @@ RSpec.describe OpenRouter::Client do
 
       it 'returns a failure response with AuthenticationError' do
         response = client.chat_completion_with_schema(
-          messages: messages,
-          schema: schema
+          messages:,
+          schema:
         )
 
         expect(response).to be_failure
@@ -92,12 +92,12 @@ RSpec.describe OpenRouter::Client do
         stub_sequence = stub_request(:post, 'https://openrouter.ai/api/v1/chat/completions')
           .to_return(
             { status: 429, headers: { 'Retry-After' => '1' } },
-            { status: 200, body: { choices: [{ message: { content: '{}' } }], usage: {} }.to_json }
+            { status: 200, body: { choices: [ { message: { content: '{}' } } ], usage: {} }.to_json }
           )
 
         response = client.chat_completion_with_schema(
-          messages: messages,
-          schema: schema
+          messages:,
+          schema:
         )
 
         expect(response).to be_success
@@ -116,12 +116,12 @@ RSpec.describe OpenRouter::Client do
             { status: 500 },
             { status: 500 },
             { status: 500 },
-            { status: 200, body: { choices: [{ message: { content: '{}' } }], usage: {} }.to_json }
+            { status: 200, body: { choices: [ { message: { content: '{}' } } ], usage: {} }.to_json }
           )
 
         response = client.chat_completion_with_schema(
-          messages: messages,
-          schema: schema
+          messages:,
+          schema:
         )
 
         expect(response).to be_success
@@ -137,8 +137,8 @@ RSpec.describe OpenRouter::Client do
 
       it 'returns a failure response' do
         response = client.chat_completion_with_schema(
-          messages: messages,
-          schema: schema
+          messages:,
+          schema:
         )
 
         expect(response).to be_failure
@@ -156,11 +156,11 @@ RSpec.describe OpenRouter::Client do
           .to_timeout
           .times(1)
           .then
-          .to_return(status: 200, body: { choices: [{ message: { content: '{}' } }], usage: {} }.to_json)
+          .to_return(status: 200, body: { choices: [ { message: { content: '{}' } } ], usage: {} }.to_json)
 
         response = client.chat_completion_with_schema(
-          messages: messages,
-          schema: schema
+          messages:,
+          schema:
         )
 
         expect(response).to be_success
@@ -190,4 +190,3 @@ RSpec.describe OpenRouter::Client do
     end
   end
 end
-

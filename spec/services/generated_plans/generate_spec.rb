@@ -5,7 +5,7 @@ require 'webmock/rspec'
 
 RSpec.describe GeneratedPlans::Generate do
   let(:user) { create(:user) }
-  
+
   let!(:trip) do
     Trip.create!(
       user:,

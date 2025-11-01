@@ -55,4 +55,3 @@ module OpenRouter
     end
   end
 end
-

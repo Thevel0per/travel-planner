@@ -63,4 +63,3 @@ class ServiceResult
     new(success: false, error_message:, retryable:)
   end
 end
-

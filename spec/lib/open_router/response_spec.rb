@@ -10,9 +10,9 @@ RSpec.describe OpenRouter::Response do
 
     subject(:response) do
       described_class.success(
-        content: content,
-        usage: usage,
-        raw_response: raw_response
+        content:,
+        usage:,
+        raw_response:
       )
     end
 
@@ -44,7 +44,7 @@ RSpec.describe OpenRouter::Response do
   describe '.failure' do
     let(:error) { OpenRouter::AuthenticationError.new('Invalid API key') }
 
-    subject(:response) { described_class.failure(error: error) }
+    subject(:response) { described_class.failure(error:) }
 
     it 'creates a failed response' do
       expect(response).to be_failure
@@ -102,7 +102,7 @@ RSpec.describe OpenRouter::Response do
   describe '#retryable?' do
     context 'with retryable error' do
       let(:error) { OpenRouter::ServerError.new }
-      let(:response) { described_class.failure(error: error) }
+      let(:response) { described_class.failure(error:) }
 
       it 'returns true' do
         expect(error.retryable?).to be true
@@ -111,7 +111,7 @@ RSpec.describe OpenRouter::Response do
 
     context 'with non-retryable error' do
       let(:error) { OpenRouter::AuthenticationError.new }
-      let(:response) { described_class.failure(error: error) }
+      let(:response) { described_class.failure(error:) }
 
       it 'returns false' do
         expect(error.retryable?).to be false
@@ -119,4 +119,3 @@ RSpec.describe OpenRouter::Response do
     end
   end
 end
-

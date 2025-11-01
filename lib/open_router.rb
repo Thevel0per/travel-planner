@@ -11,4 +11,3 @@ require_relative 'open_router/error'
 require_relative 'open_router/configuration'
 require_relative 'open_router/response'
 require_relative 'open_router/client'
-

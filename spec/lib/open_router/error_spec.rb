@@ -92,4 +92,3 @@ RSpec.describe OpenRouter::Error do
     end
   end
 end
-

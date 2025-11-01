@@ -54,4 +54,3 @@ RSpec.describe ServiceResult do
     end
   end
 end
-

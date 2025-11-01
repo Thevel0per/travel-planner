@@ -83,9 +83,9 @@ module OpenRouter
     def self.success(content:, usage:, raw_response:)
       new(
         success: true,
-        content: content,
-        usage: usage,
-        raw_response: raw_response
+        content:,
+        usage:,
+        raw_response:
       )
     end
 
@@ -94,9 +94,8 @@ module OpenRouter
     def self.failure(error:)
       new(
         success: false,
-        error: error
+        error:
       )
     end
   end
 end
-

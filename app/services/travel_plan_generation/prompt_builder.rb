@@ -153,4 +153,3 @@ module TravelPlanGeneration
     end
   end
 end
-
