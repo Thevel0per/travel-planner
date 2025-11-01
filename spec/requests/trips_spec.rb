@@ -572,4 +572,213 @@ RSpec.describe 'Trips', type: :request do
       end
     end
   end
+
+  describe 'PUT/PATCH /trips/:id' do
+    let(:trip) do
+      create(:trip,
+        user:,
+        name: 'Original Trip Name',
+        destination: 'Original Destination',
+        start_date: Date.new(2025, 7, 15),
+        end_date: Date.new(2025, 7, 22),
+        number_of_people: 2)
+    end
+
+    context 'when user is not authenticated' do
+      it 'redirects to sign in page for HTML requests' do
+        put trip_path(trip), params: { trip: { name: 'Updated Name' } }
+        expect(response).to redirect_to(new_user_session_path)
+      end
+
+      it 'returns 401 unauthorized for JSON requests' do
+        put trip_path(trip), params: { trip: { name: 'Updated Name' } }, as: :json
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+
+    context 'when user is authenticated' do
+      before { sign_in user }
+
+      context 'with valid parameters' do
+        context 'partial update (single field)' do
+          it 'updates only the name field' do
+            put trip_path(trip), params: { trip: { name: 'Updated Trip Name' } }, as: :json
+            expect(response).to have_http_status(:ok)
+
+            trip.reload
+            expect(trip.name).to eq('Updated Trip Name')
+            expect(trip.destination).to eq('Original Destination')
+            expect(trip.start_date).to eq(Date.new(2025, 7, 15))
+          end
+
+          it 'returns updated trip data in JSON response' do
+            put trip_path(trip), params: { trip: { name: 'Updated Trip Name' } }, as: :json
+            json = JSON.parse(response.body)
+
+            expect(json).to have_key('trip')
+            expect(json['trip']['name']).to eq('Updated Trip Name')
+            expect(json['trip']['id']).to eq(trip.id)
+          end
+        end
+
+        context 'full update (all fields)' do
+          it 'updates all trip fields' do
+            put trip_path(trip),
+                params: {
+                  trip: {
+                    name: 'Summer Vacation 2025',
+                    destination: 'Paris, France',
+                    start_date: '2025-08-01',
+                    end_date: '2025-08-10',
+                    number_of_people: 3
+                  }
+                },
+                as: :json
+
+            expect(response).to have_http_status(:ok)
+
+            trip.reload
+            expect(trip.name).to eq('Summer Vacation 2025')
+            expect(trip.destination).to eq('Paris, France')
+            expect(trip.start_date).to eq(Date.new(2025, 8, 1))
+            expect(trip.end_date).to eq(Date.new(2025, 8, 10))
+            expect(trip.number_of_people).to eq(3)
+          end
+
+          it 'returns all updated fields in JSON response' do
+            put trip_path(trip),
+                params: {
+                  trip: {
+                    name: 'Summer Vacation 2025',
+                    destination: 'Paris, France',
+                    start_date: '2025-08-01',
+                    end_date: '2025-08-10',
+                    number_of_people: 3
+                  }
+                },
+                as: :json
+
+            json = JSON.parse(response.body)
+            expect(json['trip']['name']).to eq('Summer Vacation 2025')
+            expect(json['trip']['destination']).to eq('Paris, France')
+            expect(json['trip']['start_date']).to eq('2025-08-01')
+            expect(json['trip']['end_date']).to eq('2025-08-10')
+            expect(json['trip']['number_of_people']).to eq(3)
+          end
+        end
+
+        context 'with flat parameter format' do
+          it 'accepts parameters without trip wrapper' do
+            patch trip_path(trip), params: { name: 'Flat Format Update' }, as: :json
+            expect(response).to have_http_status(:ok)
+
+            trip.reload
+            expect(trip.name).to eq('Flat Format Update')
+          end
+        end
+
+        context 'HTML format' do
+          it 'redirects to trip show page with success message' do
+            put trip_path(trip), params: { trip: { name: 'Updated Name' } }
+            expect(response).to redirect_to(trip_path(trip))
+            expect(flash[:notice]).to eq('Trip updated successfully')
+          end
+        end
+      end
+
+      context 'with validation errors' do
+        it 'returns 422 Unprocessable Entity when end_date <= start_date' do
+          put trip_path(trip),
+              params: {
+                trip: {
+                  start_date: '2025-07-20',
+                  end_date: '2025-07-15'
+                }
+              },
+              as: :json
+
+          expect(response).to have_http_status(:unprocessable_content)
+        end
+
+        it 'returns validation errors in JSON format' do
+          put trip_path(trip),
+              params: {
+                trip: {
+                  name: '',
+                  start_date: '2025-07-20',
+                  end_date: '2025-07-15'
+                }
+              },
+              as: :json
+
+          json = JSON.parse(response.body)
+          expect(json).to have_key('errors')
+        end
+
+        it 'returns error for blank name when provided' do
+          put trip_path(trip), params: { trip: { name: '' } }, as: :json
+          expect(response).to have_http_status(:unprocessable_content)
+
+          json = JSON.parse(response.body)
+          expect(json['errors']).to have_key('name')
+        end
+
+        it 'returns error for invalid number_of_people' do
+          put trip_path(trip), params: { trip: { number_of_people: 0 } }, as: :json
+          expect(response).to have_http_status(:unprocessable_content)
+
+          json = JSON.parse(response.body)
+          expect(json['errors']).to have_key('number_of_people')
+        end
+      end
+
+      context 'when trip does not exist' do
+        it 'returns 404 Not Found for JSON requests' do
+          put trip_path(999_999), params: { trip: { name: 'Updated' } }, as: :json
+          expect(response).to have_http_status(:not_found)
+        end
+
+        it 'returns error response in correct format' do
+          put trip_path(999_999), params: { trip: { name: 'Updated' } }, as: :json
+          json = JSON.parse(response.body)
+
+          expect(json).to have_key('error')
+          expect(json['error']).to eq('Resource not found')
+        end
+      end
+
+      context 'when trip belongs to different user' do
+        let(:other_user_trip) { create(:trip, user: other_user, name: 'Other User Trip') }
+
+        it 'returns 404 Not Found (prevents unauthorized access)' do
+          put trip_path(other_user_trip), params: { trip: { name: 'Hacked' } }, as: :json
+          expect(response).to have_http_status(:not_found)
+        end
+
+        it 'does not reveal trip existence through error message' do
+          put trip_path(other_user_trip), params: { trip: { name: 'Hacked' } }, as: :json
+          json = JSON.parse(response.body)
+
+          expect(json['error']).to eq('Resource not found')
+        end
+      end
+
+      context 'security' do
+        it 'prevents user_id from being changed' do
+          original_user_id = trip.user_id
+          put trip_path(trip),
+              params: {
+                trip: {
+                  name: 'Updated',
+                  user_id: other_user.id
+                }
+              },
+              as: :json
+
+          trip.reload
+          expect(trip.user_id).to eq(original_user_id)
+        end
+      end
+    end
+  end
 end
