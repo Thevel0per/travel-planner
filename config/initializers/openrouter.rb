@@ -3,8 +3,10 @@
 # OpenRouter API configuration
 Rails.application.config.after_initialize do
   OpenRouter.configure do |config|
-    # API key from Rails credentials (can be nil in test environment)
-    config.api_key = Rails.application.credentials.dig(:openrouter, :api_key) || ENV['OPENROUTER_API_KEY'] || 'test-key'
+    # API key from Rails credentials or environment variable
+    # Note: In test environment, you may need to set ENV['OPENROUTER_API_KEY']
+    api_key = Rails.application.credentials.dig(:openrouter, :api_key) || ENV['OPENROUTER_API_KEY']
+    config.api_key = api_key
 
     # Request timeout in seconds
     config.timeout = 60

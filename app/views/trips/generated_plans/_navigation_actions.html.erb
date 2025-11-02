@@ -1,0 +1,16 @@
+<%# Navigation Actions Partial %>
+<%# Provides navigation actions including a link back to the trip detail page %>
+<%# Usage: render 'trips/generated_plans/navigation_actions', trip: @trip %>
+
+<div class="mt-8 pt-6 border-t border-gray-200">
+  <%= link_to trip_path(trip), 
+      class: 'inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition-all hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
+      data: { ripple: "light" },
+      'aria-label': 'Back to trip details' do %>
+    <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+    </svg>
+    Back to Trip
+  <% end %>
+</div>
+

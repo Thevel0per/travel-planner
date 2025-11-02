@@ -1,0 +1,91 @@
+<%# Daily Itinerary Day Partial %>
+<%# Displays a single day's itinerary including day number, date, activities list, and restaurants list %>
+<%# Usage: render 'trips/generated_plans/daily_itinerary_day', day: day %>
+
+<% date_obj = Date.parse(day.date) rescue nil %>
+
+<div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden" data-controller="accordion">
+  <!-- Day Header (Clickable) -->
+  <button 
+    type="button"
+    class="w-full bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b border-gray-200 hover:from-blue-100 hover:to-indigo-100 transition-colors text-left"
+    data-accordion-target="button"
+    data-action="click->accordion#toggle"
+    aria-expanded="false"
+    aria-controls="day-<%= day.day %>-content">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="flex items-center justify-center w-10 h-10 rounded-full bg-blue-500 text-white font-bold text-lg">
+          <%= day.day %>
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold text-gray-900">
+            <% if date_obj %>
+              <%= date_obj.strftime('%A, %B %-d, %Y') %>
+            <% else %>
+              Day <%= day.day %>
+            <% end %>
+          </h3>
+          <% if date_obj %>
+            <p class="text-sm text-gray-600">
+              <time datetime="<%= day.date %>">
+                <%= date_obj.strftime('%b %-d, %Y') %>
+              </time>
+            </p>
+          <% end %>
+        </div>
+      </div>
+      <!-- Chevron Icon -->
+      <svg 
+        class="w-5 h-5 text-gray-500 transition-transform duration-200 rotate-0"
+        data-accordion-target="icon"
+        fill="none" 
+        viewBox="0 0 24 24" 
+        stroke="currentColor" 
+        aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+      </svg>
+    </div>
+  </button>
+  
+  <!-- Day Content (Collapsed by default) -->
+  <div 
+    id="day-<%= day.day %>-content"
+    class="hidden p-6 space-y-6"
+    data-accordion-target="content"
+    aria-hidden="true">
+    <!-- Activities Section -->
+    <% if day.activities.present? && day.activities.any? %>
+      <div>
+        <h4 class="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <svg class="w-5 h-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
+          Activities
+        </h4>
+        <%= render 'activities_list', activities: day.activities %>
+      </div>
+    <% end %>
+    
+    <!-- Restaurants Section -->
+    <% if day.restaurants.present? && day.restaurants.any? %>
+      <div>
+        <h4 class="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <svg class="w-5 h-5 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+          Restaurants
+        </h4>
+        <%= render 'restaurants_list', restaurants: day.restaurants %>
+      </div>
+    <% end %>
+    
+    <!-- Empty State (if no activities and no restaurants) -->
+    <% if (!day.activities.present? || day.activities.empty?) && (!day.restaurants.present? || day.restaurants.empty?) %>
+      <div class="text-center py-8 text-gray-500">
+        <p class="text-sm">No activities or restaurants scheduled for this day.</p>
+      </div>
+    <% end %>
+  </div>
+</div>
+

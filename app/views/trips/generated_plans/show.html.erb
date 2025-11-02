@@ -1,0 +1,23 @@
+<%# Generated Plan Detail View - Main Container %>
+<%# Displays detailed view of a generated travel plan with full content, status, and rating %>
+
+<div class="min-h-screen bg-gray-50" data-controller="material-tailwind">
+  <!-- Main Content with Material Design Container -->
+  <main class="container mx-auto px-4 py-8 max-w-7xl">
+    
+    <!-- Material Design Page Header -->
+    <%= render 'shared/page_header', title: 'Travel Plan Details' %>
+    
+    <!-- Plan Status Banner -->
+    <%= render 'plan_status_banner', status: @generated_plan.status %>
+    
+    <!-- Plan Content Section (only when completed) -->
+    <% if @generated_plan.status == 'completed' && @generated_plan.content.present? %>
+      <%= render 'plan_content_section', content: @generated_plan.content, generated_plan: @generated_plan, trip: @trip %>
+    <% end %>
+    
+    <!-- Navigation Actions -->
+    <%= render 'navigation_actions', trip: @trip %>
+  </main>
+</div>
+

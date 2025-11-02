@@ -16,7 +16,7 @@ Rails.application.routes.draw do
     resources :notes, only: [ :create ], module: :trips
 
     # Nested resources for generated plans
-    resources :generated_plans, only: [ :create ], module: :trips
+    resources :generated_plans, only: [ :create, :show, :update ], module: :trips
   end
 
   # Defines the root path route ("/")

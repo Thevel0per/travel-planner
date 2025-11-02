@@ -14,7 +14,9 @@ module Commands
     sig { params(params: T::Hash[T.untyped, T.untyped]).returns(GeneratedPlanUpdateCommand) }
     def self.from_params(params)
       generated_plan_params = params[:generated_plan] || params
-      new(rating: generated_plan_params[:rating])
+      rating_value = generated_plan_params[:rating]
+      rating_int = rating_value.present? ? rating_value.to_i : nil
+      new(rating: rating_int)
     end
 
     sig { returns(T::Hash[Symbol, T.untyped]) }

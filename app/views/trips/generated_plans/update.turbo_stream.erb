@@ -1,0 +1,18 @@
+<%# Turbo Stream for generated plan rating update %>
+<%# Updates the rating form to show the new rating value %>
+
+<% if @generated_plan_model.errors.empty? %>
+  <%# Set flash message for success %>
+  <% flash[:notice] = 'Rating saved successfully' %>
+  
+  <%# Update only the rating form container (not the entire section) %>
+  <%= turbo_stream.update "rating_form_container" do %>
+    <%= render 'rating_form', generated_plan: @generated_plan, trip: @trip %>
+  <% end %>
+<% else %>
+  <%# Re-render form with validation errors %>
+  <%= turbo_stream.update "rating_form_container" do %>
+    <%= render 'rating_form', generated_plan: @generated_plan, trip: @trip %>
+  <% end %>
+<% end %>
+

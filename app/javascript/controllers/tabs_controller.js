@@ -5,11 +5,22 @@ export default class extends Controller {
   static targets = ["tab", "panel"]
 
   connect() {
-    // Set initial active tab based on visible panel
+    // Read tab from URL query parameter or hash
+    const urlParams = new URLSearchParams(window.location.search)
+    const tabFromUrl = urlParams.get('tab')
+    const tabFromHash = window.location.hash.replace('#', '')
+    const initialTabId = tabFromUrl || tabFromHash
+    
+    if (initialTabId) {
+      // Set active tab from URL
+      this.updateActiveTab(initialTabId)
+    } else {
+      // Fallback: Set initial active tab based on visible panel
     const activePanel = this.panelTargets.find(panel => !panel.classList.contains('hidden'))
     if (activePanel) {
       const activeTabId = activePanel.dataset.panelId
       this.updateActiveTab(activeTabId)
+      }
     }
     
     // Attach keyboard navigation listeners
@@ -26,9 +37,13 @@ export default class extends Controller {
     const tabId = event.currentTarget.dataset.tabId
     this.updateActiveTab(tabId)
     
-    // Update URL hash (optional, for bookmarking/refresh)
+    // Update URL query parameter for persistence across page refreshes
     if (window.history && window.history.pushState) {
-      window.history.pushState(null, null, `#${tabId}`)
+      const url = new URL(window.location)
+      url.searchParams.set('tab', tabId)
+      // Remove hash if present
+      url.hash = ''
+      window.history.pushState(null, '', url)
     }
   }
 

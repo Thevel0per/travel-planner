@@ -1,0 +1,27 @@
+<%# Daily Itinerary Section Partial %>
+<%# Container component that displays the full daily itinerary, iterating over each day %>
+<%# Usage: render 'trips/generated_plans/daily_itinerary_section', daily_itinerary: content.daily_itinerary %>
+
+<div class="space-y-6">
+  <div class="flex items-center justify-between mb-6">
+    <h2 class="text-2xl font-bold text-gray-900">Daily Itinerary</h2>
+  </div>
+  
+  <% if daily_itinerary.present? && daily_itinerary.any? %>
+    <div class="space-y-6">
+      <% daily_itinerary.each do |day| %>
+        <%= render 'daily_itinerary_day', day: day %>
+      <% end %>
+    </div>
+  <% else %>
+    <!-- Empty State -->
+    <div class="bg-white rounded-lg border border-gray-200 p-12 text-center">
+      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+      </svg>
+      <h3 class="mt-4 text-sm font-medium text-gray-900">No itinerary available</h3>
+      <p class="mt-2 text-sm text-gray-500">The daily itinerary has not been generated yet.</p>
+    </div>
+  <% end %>
+</div>
+

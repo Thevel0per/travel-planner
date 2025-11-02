@@ -6,7 +6,7 @@
   <% if plans.any? %>
     <div class="space-y-4">
       <% plans.each do |plan| %>
-        <%= render 'generated_plan_item', plan: plan %>
+        <%= render 'trips/generated_plan_item', plan: plan %>
       <% end %>
     </div>
   <% else %>

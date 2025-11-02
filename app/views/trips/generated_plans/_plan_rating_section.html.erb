@@ -1,0 +1,13 @@
+<%# Plan Rating Section Partial %>
+<%# Displays the rating interface for the completed plan %>
+<%# Usage: render 'trips/generated_plans/plan_rating_section', generated_plan: @generated_plan, trip: @trip %>
+
+<% if generated_plan.status == 'completed' %>
+  <div id="plan_rating_section" class="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+    <h2 class="text-lg font-semibold text-gray-900 mb-4">Rate This Plan</h2>
+    
+    <!-- Rating Form (includes current rating display if rated) -->
+    <%= render 'rating_form', generated_plan: generated_plan, trip: trip %>
+  </div>
+<% end %>
+
