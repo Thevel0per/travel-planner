@@ -1,0 +1,33 @@
+<%# Add Note Form Partial %>
+<%# Form to add a new note to the trip using Turbo %>
+<%# Usage: render 'trips/add_note_form', trip: @trip %>
+
+<div id="new_note_form" class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+  <h3 class="text-sm font-medium text-gray-900 mb-4">Add a Note</h3>
+  
+  <%= form_with model: [trip, Note.new], 
+      local: false, 
+      class: 'space-y-4' do |form| %>
+    
+    <!-- Content Field -->
+    <%= render 'shared/form_field', 
+        form: form, 
+        field_name: :content, 
+        field_type: 'textarea', 
+        required: true, 
+        maxlength: 10000,
+        textarea_rows: 4,
+        placeholder: 'Enter your note here...' %>
+    
+    <!-- Submit Button -->
+    <div class="flex justify-end">
+      <button 
+        type="submit"
+        class="inline-flex items-center justify-center rounded-lg bg-blue-500 px-4 py-2 text-sm font-medium text-white shadow-md shadow-blue-500/20 transition-all hover:shadow-lg hover:shadow-blue-500/40 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85] active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+        data-ripple="light">
+        Add Note
+      </button>
+    </div>
+  <% end %>
+</div>
+

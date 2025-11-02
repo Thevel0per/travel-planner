@@ -1,0 +1,23 @@
+<%# Turbo Stream for note creation %>
+<%# Updates notes list and form based on success or validation errors %>
+
+<% if @note.persisted? && @note.errors.empty? %>
+  <%# Reload the trip to get updated notes list %>
+  <% @trip.reload %>
+  
+  <%# Update the entire notes list to handle both empty and populated states %>
+  <%= turbo_stream.update "notes_list" do %>
+    <%= render 'trips/notes_list', notes: @trip.notes %>
+  <% end %>
+  
+  <%# Reset the form %>
+  <%= turbo_stream.update "new_note_form" do %>
+    <%= render 'trips/add_note_form', trip: @trip %>
+  <% end %>
+<% else %>
+  <%# Re-render form with validation errors %>
+  <%= turbo_stream.update "new_note_form" do %>
+    <%= render 'trips/add_note_form', trip: @trip %>
+  <% end %>
+<% end %>
+

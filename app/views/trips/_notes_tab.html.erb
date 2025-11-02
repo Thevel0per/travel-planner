@@ -1,0 +1,11 @@
+<%# Notes Tab Partial %>
+<%# Displays the Notes tab content with list of notes and form to add new notes %>
+<%# Usage: render 'trips/notes_tab', trip: @trip %>
+
+<div class="space-y-6">
+  <!-- Notes List Section -->
+  <%= render 'notes_list', notes: trip.notes %>
+  
+  <!-- Add Note Form Section -->
+  <%= render 'add_note_form', trip: trip %>
+</div>

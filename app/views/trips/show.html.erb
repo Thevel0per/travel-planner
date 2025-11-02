@@ -1,0 +1,18 @@
+<%# Trip Detail View - Main Container %>
+<%# Displays trip information, notes, and generated plans with tabbed interface %>
+
+<div class="min-h-screen bg-gray-50" data-controller="material-tailwind">
+  <!-- Main Content with Material Design Container -->
+  <main class="container mx-auto px-4 py-8 max-w-7xl">
+    
+    <!-- Material Design Page Header -->
+    <%= render 'shared/page_header', title: 'Trip Details' %>
+    
+    <!-- Trip Header Section -->
+    <%= render 'trip_header', trip: @trip %>
+    
+    <!-- Tab Navigation Section -->
+    <%= render 'tab_navigation', trip: @trip, active_tab: params[:tab] || 'notes' %>
+  </main>
+</div>
+

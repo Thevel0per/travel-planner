@@ -11,7 +11,13 @@ Rails.application.routes.draw do
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
   # Trips resource - RESTful routes for trip management
-  resources :trips, only: [ :index, :show, :new, :create, :edit, :update, :destroy ]
+  resources :trips, only: [ :index, :show, :new, :create, :edit, :update, :destroy ] do
+    # Nested resources for notes
+    resources :notes, only: [ :create ], module: :trips
+
+    # Nested resources for generated plans
+    resources :generated_plans, only: [ :create ], module: :trips
+  end
 
   # Defines the root path route ("/")
   root 'trips#index'

@@ -1,0 +1,68 @@
+<%# Tab Navigation Component %>
+<%# Implements accessible tab interface to switch between Notes and Generated Plans %>
+<%# Usage: render 'trips/tab_navigation', trip: @trip, active_tab: 'notes' %>
+
+<% active_tab ||= 'notes' %>
+
+<div class="bg-white rounded-xl shadow-md" data-controller="tabs">
+  <!-- Tab List -->
+  <ul role="tablist" aria-label="Trip sections" class="flex border-b border-gray-200">
+    <!-- Notes Tab Button -->
+    <li role="none" class="flex-1">
+      <button 
+        type="button"
+        role="tab"
+        id="notes-tab"
+        aria-selected="<%= active_tab == 'notes' ? 'true' : 'false' %>"
+        aria-controls="notes-tabpanel"
+        class="w-full px-6 py-4 text-sm font-medium transition-all focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 <%= active_tab == 'notes' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700 hover:border-b-2 hover:border-gray-300' %>"
+        data-action="click->tabs#switchTab"
+        data-tabs-target="tab"
+        data-tab-id="notes">
+        Notes
+      </button>
+    </li>
+    
+    <!-- Generated Plans Tab Button -->
+    <li role="none" class="flex-1">
+      <button 
+        type="button"
+        role="tab"
+        id="generated-plans-tab"
+        aria-selected="<%= active_tab == 'generated_plans' ? 'true' : 'false' %>"
+        aria-controls="generated-plans-tabpanel"
+        class="w-full px-6 py-4 text-sm font-medium transition-all focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 <%= active_tab == 'generated_plans' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700 hover:border-b-2 hover:border-gray-300' %>"
+        data-action="click->tabs#switchTab"
+        data-tabs-target="tab"
+        data-tab-id="generated_plans">
+        Generated Plans
+      </button>
+    </li>
+  </ul>
+  
+  <!-- Tab Panels Container -->
+  <div class="p-6">
+    <!-- Notes Tab Panel -->
+    <div 
+      role="tabpanel"
+      id="notes-tabpanel"
+      aria-labelledby="notes-tab"
+      data-tabs-target="panel"
+      data-panel-id="notes"
+      class="<%= active_tab == 'notes' ? '' : 'hidden' %>">
+      <%= render 'notes_tab', trip: trip %>
+    </div>
+    
+    <!-- Generated Plans Tab Panel -->
+    <div 
+      role="tabpanel"
+      id="generated-plans-tabpanel"
+      aria-labelledby="generated-plans-tab"
+      data-tabs-target="panel"
+      data-panel-id="generated_plans"
+      class="<%= active_tab == 'generated_plans' ? '' : 'hidden' %>">
+      <%= render 'generated_plans_tab', trip: trip %>
+    </div>
+  </div>
+</div>
+

@@ -1,0 +1,10 @@
+<%# Turbo Stream for generated plan creation %>
+<%# Updates the plans list to include the new plan %>
+
+<% if @generated_plan.persisted? %>
+  <%# Update the entire list to ensure proper ordering and empty state handling %>
+  <%= turbo_stream.update "generated_plans_list" do %>
+    <%= render 'generated_plans_list', plans: @trip.generated_plans.ordered %>
+  <% end %>
+<% end %>
+
