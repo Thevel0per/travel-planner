@@ -13,25 +13,39 @@ module GeneratedPlans
     sig { returns(Integer) }
     attr_reader :user_id
 
+    sig { returns(T.nilable(Integer)) }
+    attr_reader :generated_plan_id
+
     sig do
       params(
         trip_id: Integer,
-        user_id: Integer
+        user_id: Integer,
+        generated_plan_id: T.nilable(Integer)
       ).void
     end
-    def initialize(trip_id:, user_id:)
+    def initialize(trip_id:, user_id:, generated_plan_id: nil)
       @trip_id = trip_id
       @user_id = user_id
+      @generated_plan_id = generated_plan_id
     end
 
     # Generate the travel plan
     sig { returns(ServiceResult) }
     def call
-      # Create new generated plan
-      generated_plan = trip.generated_plans.create!(
-        status: 'generating',
-        content: ''
-      )
+      # Use existing plan if provided, otherwise create new one
+      generated_plan = if generated_plan_id
+                          GeneratedPlan.find(generated_plan_id).tap do |plan|
+                            raise ActiveRecord::RecordNotFound unless plan.trip_id == trip_id
+                          end
+      else
+                          trip.generated_plans.find_or_create_by(
+                            status: 'pending',
+                            content: '{}'
+                          )
+      end
+
+      # Ensure status is 'generating'
+      generated_plan.update!(status: 'generating') unless generated_plan.status == 'generating'
 
       # Validate
       unless validator.valid?

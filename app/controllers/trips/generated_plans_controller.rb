@@ -10,39 +10,83 @@ class Trips::GeneratedPlansController < ApplicationController
 
   # POST /trips/:trip_id/generated_plans
   # Initiates generation of a new travel plan
-  # Returns Turbo Stream response with new plan in 'pending' or 'generating' status
+  # Returns 202 Accepted with plan in 'pending' status
+  # Supports both JSON and Turbo Stream responses
   sig { void }
   def create
+    # Check if user preferences exist (required for generation)
+    unless current_user.user_preference
+      error_dto = DTOs::ErrorResponseDTO.single_error(
+        'Cannot generate plan without user preferences. Please set your preferences first.'
+      )
+      respond_to do |format|
+        format.json { render json: error_dto.serialize, status: :unprocessable_content }
+        format.turbo_stream { render :create, status: :unprocessable_content }
+      end
+      return
+    end
+
     # Create plan with 'pending' status
     @generated_plan = @trip.generated_plans.create!(
       status: 'pending',
       content: '{}'
     )
 
-    # Trigger background job for plan generation
-    # Note: The actual job implementation should be added separately
-    # For now, we'll create the plan and update it to 'generating'
-    @generated_plan.mark_as_generating!
-
-    # TODO: Queue background job to generate plan
-    # GeneratedPlanGenerationJob.perform_later(@generated_plan.id, current_user.id)
+    # Queue background job for plan generation
+    GeneratedPlanGenerationJob.perform_later(
+      generated_plan_id: @generated_plan.id,
+      user_id: current_user.id
+    )
 
     respond_to do |format|
       format.turbo_stream
       format.json do
         dto = DTOs::GeneratedPlanDTO.from_model(@generated_plan)
-        render json: { generated_plan: dto.serialize }, status: :accepted
+        render json: {
+          generated_plan: dto.serialize,
+          message: 'Plan generation initiated. Please check back shortly.'
+        }, status: :accepted
       end
     end
-  rescue StandardError => e
-    Rails.logger.error("Error creating generated plan: #{e.message}")
+  rescue ActiveRecord::RecordInvalid => e
+    # Handle validation errors from plan creation
+    Rails.logger.warn("Validation error creating generated plan: #{e.message}")
     @generated_plan&.mark_as_failed!
 
     respond_to do |format|
       format.turbo_stream { render :create, status: :unprocessable_content }
       format.json do
-        error_dto = DTOs::ErrorResponseDTO.single_error('Failed to initiate plan generation')
+        if @generated_plan
+          error_dto = DTOs::ErrorResponseDTO.from_model_errors(@generated_plan)
+        else
+          error_dto = DTOs::ErrorResponseDTO.single_error('Invalid generated plan parameters')
+        end
         render json: error_dto.serialize, status: :unprocessable_content
+      end
+    end
+  rescue ActiveJob::SerializationError => e
+    # Handle job queue failures
+    Rails.logger.error("Job queue error: #{e.message}")
+    @generated_plan&.mark_as_failed!
+
+    respond_to do |format|
+      format.turbo_stream { render :create, status: :unprocessable_content }
+      format.json do
+        error_dto = DTOs::ErrorResponseDTO.single_error('An unexpected error occurred')
+        render json: error_dto.serialize, status: :internal_server_error
+      end
+    end
+  rescue StandardError => e
+    # Handle unexpected errors
+    Rails.logger.error("Error creating generated plan: #{e.message}")
+    Rails.logger.error(e.backtrace.join("\n"))
+    @generated_plan&.mark_as_failed!
+
+    respond_to do |format|
+      format.turbo_stream { render :create, status: :unprocessable_content }
+      format.json do
+        error_dto = DTOs::ErrorResponseDTO.single_error('An unexpected error occurred')
+        render json: error_dto.serialize, status: :internal_server_error
       end
     end
   end
