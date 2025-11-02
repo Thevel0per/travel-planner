@@ -54,10 +54,13 @@ module TravelPlanGeneration
         6. Include specific times for each activity (e.g., "10:00 AM")
         7. Provide engaging descriptions for each activity
         8. Recommend restaurants for breakfast, lunch, and dinner each day
+        9. Recommend 2-4 hotels based on the destination, budget, and accommodation preferences
+        10. For ALL places mentioned (hotels, activities, restaurants), include Google Maps URLs in the format: https://maps.google.com/?q=<encoded_location_name> or use the full Google Maps share URL if available
 
         OUTPUT FORMAT:
         You must respond with valid JSON matching the exact schema provided. All costs should be in USD.
         Ratings should be realistic (3.5-5.0 for popular attractions, 2.0-4.5 for restaurants).
+        Include Google Maps URLs for hotels, activities, and restaurants to help users navigate to these locations.
       SYSTEM
     end
 
@@ -73,7 +76,7 @@ module TravelPlanGeneration
         - Destination: #{trip.destination}
         - Start Date: #{trip.start_date.strftime('%B %d, %Y')}
         - End Date: #{trip.end_date.strftime('%B %d, %Y')}
-        - Duration: #{duration} days
+        - Duration: #{duration} days (EXACTLY #{duration} days - you must create one day entry for each day from start to end date, inclusive)
         - Number of People: #{trip.number_of_people}
 
         USER PREFERENCES:
@@ -81,7 +84,18 @@ module TravelPlanGeneration
 
       message += format_preferences
       message += format_notes if notes.any?
-      message += "\nPlease generate a complete itinerary with daily activities and restaurant recommendations."
+      message += <<~INSTRUCTIONS
+
+        Please generate:
+        1. A complete itinerary with EXACTLY #{duration} days of activities and restaurant recommendations (one day for each day from #{trip.start_date.strftime('%B %d, %Y')} to #{trip.end_date.strftime('%B %d, %Y')}, inclusive)
+        2. Hotel recommendations (2-4 hotels) based on the destination and user preferences
+        3. Google Maps URLs for ALL places (hotels, activities, restaurants) in the format: https://maps.google.com/?q=<encoded_location_name>
+
+        CRITICAL REQUIREMENTS:
+        - The daily_itinerary array MUST contain exactly #{duration} day entries (days 1 through #{duration})
+        - Each day must have the correct date matching the trip dates
+        - Include Google Maps URLs for every hotel, activity, and restaurant recommendation to help users navigate to these locations.
+      INSTRUCTIONS
       message
     end
 

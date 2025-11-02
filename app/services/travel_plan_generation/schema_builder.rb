@@ -13,9 +13,10 @@ module TravelPlanGeneration
         'type' => 'object',
         'properties' => {
           'summary' => summary_schema,
+          'hotels' => hotels_schema,
           'daily_itinerary' => daily_itinerary_schema
         },
-        'required' => [ 'summary', 'daily_itinerary' ],
+        'required' => [ 'summary', 'hotels', 'daily_itinerary' ],
         'additionalProperties' => false
       }
     end
@@ -66,9 +67,30 @@ module TravelPlanGeneration
             'estimated_cost_usd' => { 'type' => 'number', 'description' => 'Total cost for all people' },
             'estimated_cost_per_person_usd' => { 'type' => 'number', 'description' => 'Cost per person' },
             'rating' => { 'type' => 'number', 'description' => 'Rating from 0.0 to 5.0' },
-            'description' => { 'type' => 'string', 'description' => 'Activity description' }
+            'description' => { 'type' => 'string', 'description' => 'Activity description' },
+            'google_maps_url' => { 'type' => [ 'string', 'null' ], 'description' => 'Google Maps URL for the location (optional, can be null)' }
           },
-          'required' => [ 'time', 'name', 'duration_minutes', 'estimated_cost_usd', 'estimated_cost_per_person_usd', 'rating', 'description' ],
+          'required' => [ 'time', 'name', 'duration_minutes', 'estimated_cost_usd', 'estimated_cost_per_person_usd', 'rating', 'description', 'google_maps_url' ],
+          'additionalProperties' => false
+        }
+      }
+    end
+
+    sig { returns(T::Hash[String, T.untyped]) }
+    def self.hotels_schema
+      {
+        'type' => 'array',
+        'items' => {
+          'type' => 'object',
+          'properties' => {
+            'name' => { 'type' => 'string', 'description' => 'Hotel name' },
+            'location' => { 'type' => 'string', 'description' => 'Hotel address or location description' },
+            'estimated_cost_per_night_usd' => { 'type' => 'number', 'description' => 'Cost per night in USD' },
+            'rating' => { 'type' => 'number', 'description' => 'Rating from 0.0 to 5.0' },
+            'google_maps_url' => { 'type' => [ 'string', 'null' ], 'description' => 'Google Maps URL for the hotel location (optional, can be null)' },
+            'description' => { 'type' => [ 'string', 'null' ], 'description' => 'Optional hotel description (can be null)' }
+          },
+          'required' => [ 'name', 'location', 'estimated_cost_per_night_usd', 'rating', 'google_maps_url', 'description' ],
           'additionalProperties' => false
         }
       }
@@ -85,9 +107,10 @@ module TravelPlanGeneration
             'name' => { 'type' => 'string', 'description' => 'Restaurant name' },
             'cuisine' => { 'type' => 'string', 'description' => 'Type of cuisine' },
             'estimated_cost_per_person_usd' => { 'type' => 'number', 'description' => 'Cost per person' },
-            'rating' => { 'type' => 'number', 'description' => 'Rating from 0.0 to 5.0' }
+            'rating' => { 'type' => 'number', 'description' => 'Rating from 0.0 to 5.0' },
+            'google_maps_url' => { 'type' => [ 'string', 'null' ], 'description' => 'Google Maps URL for the restaurant location (optional, can be null)' }
           },
-          'required' => [ 'meal', 'name', 'cuisine', 'estimated_cost_per_person_usd', 'rating' ],
+          'required' => [ 'meal', 'name', 'cuisine', 'estimated_cost_per_person_usd', 'rating', 'google_maps_url' ],
           'additionalProperties' => false
         }
       }

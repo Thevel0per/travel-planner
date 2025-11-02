@@ -27,11 +27,16 @@ class GeneratedPlanGenerationJob < ApplicationJob
 
     # Service handles status updates (completed/failed) internally
     unless result.success?
-      Rails.logger.error("Plan generation failed for plan #{generated_plan_id}: #{result.error_message}")
+      error_msg = "Plan generation failed for plan #{generated_plan_id}: #{result.error_message}"
+      Rails.logger.error(error_msg)
+      STDERR.puts error_msg
     end
   rescue StandardError => e
-    Rails.logger.error("Error in GeneratedPlanGenerationJob: #{e.message}")
+    error_msg = "Error in GeneratedPlanGenerationJob: #{e.class.name}: #{e.message}"
+    Rails.logger.error(error_msg)
     Rails.logger.error(e.backtrace.join("\n"))
+    STDERR.puts error_msg
+    STDERR.puts e.backtrace.first(10).join("\n")
 
     # Mark plan as failed if it still exists
     generated_plan = GeneratedPlan.find_by(id: generated_plan_id)

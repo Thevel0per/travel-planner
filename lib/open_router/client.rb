@@ -29,6 +29,14 @@ module OpenRouter
       ).void
     end
     def initialize(api_key: nil, timeout: nil, max_retries: nil)
+      # Ensure configuration is loaded if it hasn't been yet
+      if OpenRouter.configuration.api_key.nil? || OpenRouter.configuration.api_key.empty?
+        if defined?(Rails) && Rails.application
+          api_key_value = Rails.application.credentials.dig(:openrouter, :api_key) || ENV['OPENROUTER_API_KEY']
+          OpenRouter.configuration.api_key = api_key_value if api_key_value
+        end
+      end
+
       @api_key = T.let(api_key || OpenRouter.configuration.api_key || '', String)
       @timeout = T.let(timeout || OpenRouter.configuration.timeout, Integer)
       @max_retries = T.let(max_retries || OpenRouter.configuration.max_retries, Integer)
@@ -174,6 +182,17 @@ module OpenRouter
       when 429
         retry_after = response['Retry-After']&.to_i
         raise RateLimitError.new('Rate limit exceeded', retry_after:)
+      when 400
+        # Log the error response body for debugging
+        begin
+          error_body = JSON.parse(response.body)
+          error_message = error_body['error'] || error_body['message'] || response.message
+          Rails.logger.error("OpenRouter Bad Request response: #{error_body.inspect}") if defined?(Rails)
+          STDERR.puts "OpenRouter Bad Request response: #{error_body.inspect}"
+          raise ClientError.new("Client error: #{error_message}", status_code: 400)
+        rescue JSON::ParserError
+          raise ClientError.new("Client error: #{response.message}", status_code: 400)
+        end
       when 500..599
         raise ServerError.new("Server error: #{response.message}", status_code: response.code.to_i)
       else
