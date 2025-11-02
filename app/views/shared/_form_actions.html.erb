@@ -1,0 +1,22 @@
+<%# Form Actions Component - Reusable %>
+<%# Container for form action buttons (submit and cancel) with Material Design styling %>
+<%# Usage: render 'shared/form_actions', submit_text: 'Create Trip', cancel_path: trips_path %>
+
+<div class="flex items-center gap-4 mt-8">
+  <button type="submit" class="inline-flex items-center justify-center rounded-lg bg-blue-500 px-6 py-2.5 text-sm font-medium text-white shadow-md shadow-blue-500/20 transition-all hover:shadow-lg hover:shadow-blue-500/40 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85] active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none" <%= 'disabled' if (is_loading rescue false) %> data-ripple="light">
+    <% if (is_loading rescue false) %>
+      <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+      <%= (loading_text rescue 'Saving...') %>
+    <% else %>
+      <%= submit_text %>
+    <% end %>
+  </button>
+  
+  <% if (cancel_path rescue nil).present? %>
+    <%= link_to ((cancel_text rescue nil) || 'Cancel'), cancel_path, class: 'inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-6 py-2.5 text-sm font-medium text-gray-700 shadow-sm transition-all hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2', data: { ripple: "light" } %>
+  <% end %>
+</div>
+

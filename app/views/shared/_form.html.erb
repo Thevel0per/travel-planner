@@ -1,0 +1,10 @@
+<%# Form Wrapper Component - Reusable %>
+<%# Generic form wrapper with Turbo support, CSRF token, and Material Design styling %>
+<%# Expects model instance variable from controller (e.g., @trip) %>
+<%# form_with will automatically infer url and method from the model %>
+
+<%= form_with(model: model, html: { class: 'space-y-6', data: { turbo: true } }) do |form| %>
+  <%# CSRF token is automatically included by form_with helper %>
+  <%= yield form %>
+<% end %>
+

@@ -1,0 +1,19 @@
+<%# Trip Form Partial %>
+<%# Uses shared form components to build trip-specific form %>
+
+<%= render 'shared/form', model: @trip do |form| %>
+  <%= render 'shared/form_field', form: form, field_name: :name, field_type: 'text', required: true, maxlength: 255, placeholder: 'Enter trip name' %>
+  
+  <%= render 'shared/form_field', form: form, field_name: :destination, field_type: 'text', required: true, maxlength: 255, placeholder: 'Enter destination' %>
+  
+  <%= render 'shared/form_field', form: form, field_name: :start_date, field_type: 'date', required: true %>
+  
+  <%= render 'shared/form_field', form: form, field_name: :end_date, field_type: 'date', required: true, min: @trip.start_date&.to_s %>
+  
+  <%= render 'shared/form_field', form: form, field_name: :number_of_people, field_type: 'number', required: true, min: 1, placeholder: 'Enter number of people' %>
+  
+  <%= render 'shared/form_actions', 
+      submit_text: @trip.persisted? ? 'Update Trip' : 'Create Trip',
+      cancel_path: @trip.persisted? ? trip_path(@trip) : trips_path %>
+<% end %>
+

@@ -6,7 +6,7 @@ class TripsController < ApplicationController
 
   # Ensure user is authenticated before accessing any trip actions
   before_action :authenticate_user!
-  before_action :set_trip, only: [ :show, :update, :destroy ]
+  before_action :set_trip, only: [ :show, :update, :destroy, :edit ]
 
   # GET /trips
   # Lists all trips for the authenticated user with pagination, filtering, and sorting
@@ -36,6 +36,18 @@ class TripsController < ApplicationController
       end
     end
   end
+
+  # GET /trips/new
+  # Displays form for creating a new trip
+  sig { void }
+  def new
+    @trip = current_user.trips.new
+  end
+
+  # GET /trips/:id/edit
+  # Displays form for editing an existing trip
+  sig { void }
+  def edit; end
 
   # GET /trips/:id
   # Retrieves a specific trip with its notes and generated plans for the authenticated user
@@ -79,14 +91,14 @@ class TripsController < ApplicationController
       end
     else
       # Validation failure: Return 422 Unprocessable Entity with error details
+      @trip = trip
       respond_to do |format|
         format.json do
           error_dto = DTOs::ErrorResponseDTO.from_model_errors(trip)
           render json: error_dto.serialize, status: :unprocessable_content
         end
         format.html do
-          flash[:alert] = format_errors_for_flash(trip.errors.messages.transform_keys(&:to_s))
-          redirect_to new_trip_path
+          render :new, status: :unprocessable_content
         end
       end
     end
@@ -124,8 +136,7 @@ class TripsController < ApplicationController
           render json: error_dto.serialize, status: :unprocessable_content
         end
         format.html do
-          flash[:alert] = format_errors_for_flash(@trip.errors.messages.transform_keys(&:to_s))
-          redirect_to edit_trip_path(@trip)
+          render :edit, status: :unprocessable_content
         end
       end
     end
