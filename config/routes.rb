@@ -19,6 +19,9 @@ Rails.application.routes.draw do
     resources :generated_plans, only: [ :create, :show, :update ], module: :trips
   end
 
+  # User preferences - singleton resource (one preference per user)
+  resource :preferences, only: [ :show ]
+
   # Defines the root path route ("/")
   root 'trips#index'
 end
