@@ -10,7 +10,7 @@ module OpenRouter
   class Client
     extend T::Sig
 
-    DEFAULT_MODEL = 'openai/gpt-4o-mini'
+    DEFAULT_MODEL = 'perplexity/sonar-pro-search'  # :online enables web search capabilities
 
     sig { returns(String) }
     attr_reader :api_key
@@ -58,7 +58,7 @@ module OpenRouter
       schema:,
       model: DEFAULT_MODEL,
       temperature: 0.7,
-      max_tokens: 16000
+      max_tokens: 32000  # Increased for Perplexity and complex plans with web search results
     )
       payload = build_request_payload(
         model:,
@@ -96,7 +96,7 @@ module OpenRouter
       ).returns(T::Hash[String, T.untyped])
     end
     def build_request_payload(model:, messages:, schema:, temperature:, max_tokens:)
-      {
+      payload = {
         model:,
         messages:,
         response_format: {
@@ -110,6 +110,15 @@ module OpenRouter
         temperature:,
         max_tokens:
       }
+
+      # Enable web search if model doesn't already have :online suffix
+      # Note: Perplexity models have built-in search, so we don't need the web plugin
+      # For other models, add web plugin to enable real-time web search for Google Maps URLs
+      unless model.end_with?(':online') || model.include?('perplexity')
+        payload[:plugins] = [ { id: 'web', max_results: 5 } ]
+      end
+
+      payload
     end
 
     sig { params(payload: T::Hash[String, T.untyped]).returns(Response) }
@@ -202,7 +211,8 @@ module OpenRouter
 
     sig { params(response: Net::HTTPResponse).returns(Response) }
     def parse_success_response(response)
-      body = JSON.parse(response.body)
+      response_body_str = response.body.to_s
+      body = JSON.parse(response_body_str)
       content = body.dig('choices', 0, 'message', 'content')
       usage = body['usage']
 
@@ -214,6 +224,14 @@ module OpenRouter
         raw_response: body
       )
     rescue JSON::ParserError => e
+      # Log the response body for debugging truncated responses
+      response_body_preview = response_body_str&.first(1000) || response.body.to_s&.first(1000) || 'No response body'
+      Rails.logger.error("JSON parse error: #{e.message}") if defined?(Rails)
+      Rails.logger.error("Response body preview (first 1000 chars): #{response_body_preview}") if defined?(Rails)
+      Rails.logger.error("Response body length: #{response_body_str&.length || response.body.to_s&.length || 'unknown'}") if defined?(Rails)
+      STDERR.puts "JSON parse error: #{e.message}"
+      STDERR.puts "Response body preview (first 1000 chars): #{response_body_preview}"
+      STDERR.puts "Response body length: #{response_body_str&.length || response.body.to_s&.length || 'unknown'}"
       raise ResponseParsingError, "Failed to parse response: #{e.message}"
     end
 

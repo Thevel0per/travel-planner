@@ -95,6 +95,7 @@ module TravelPlanGeneration
         - The daily_itinerary array MUST contain exactly #{duration} day entries (days 1 through #{duration})
         - Each day must have the correct date matching the trip dates
         - Include Google Maps URLs for every hotel, activity, and restaurant recommendation to help users navigate to these locations.
+        - Make sure that google maps does not indicate that the place is temporarily closed, or permanently closed or permanently closed.
       INSTRUCTIONS
       message
     end
