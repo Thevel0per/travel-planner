@@ -20,7 +20,7 @@ Rails.application.routes.draw do
   end
 
   # User preferences - singleton resource (one preference per user)
-  resource :preferences, only: [ :show ]
+  resource :preferences, only: [ :show, :update ]
 
   # Defines the root path route ("/")
   root 'trips#index'
