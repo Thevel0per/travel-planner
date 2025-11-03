@@ -1,0 +1,68 @@
+<%# Tab Navigation Component %>
+<%# Implements accessible tab interface to switch between Account and Preferences %>
+<%# Usage: render 'profiles/tab_navigation', active_tab: 'preferences', user_preferences: @user_preferences %>
+
+<% active_tab ||= 'preferences' %>
+
+<div class="bg-white rounded-xl shadow-md" data-controller="tabs">
+  <!-- Tab List -->
+  <ul role="tablist" aria-label="Profile sections" class="flex border-b border-gray-200">
+    <!-- Account Tab Button -->
+    <li role="none" class="flex-1">
+      <button 
+        type="button"
+        role="tab"
+        id="account-tab"
+        aria-selected="<%= active_tab == 'account' ? 'true' : 'false' %>"
+        aria-controls="account-tabpanel"
+        class="w-full px-6 py-4 text-sm font-medium transition-all focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 <%= active_tab == 'account' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700 hover:border-b-2 hover:border-gray-300' %>"
+        data-action="click->tabs#switchTab"
+        data-tabs-target="tab"
+        data-tab-id="account">
+        Account
+      </button>
+    </li>
+    
+    <!-- Preferences Tab Button -->
+    <li role="none" class="flex-1">
+      <button 
+        type="button"
+        role="tab"
+        id="preferences-tab"
+        aria-selected="<%= active_tab == 'preferences' ? 'true' : 'false' %>"
+        aria-controls="preferences-tabpanel"
+        class="w-full px-6 py-4 text-sm font-medium transition-all focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 <%= active_tab == 'preferences' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700 hover:border-b-2 hover:border-gray-300' %>"
+        data-action="click->tabs#switchTab"
+        data-tabs-target="tab"
+        data-tab-id="preferences">
+        Preferences
+      </button>
+    </li>
+  </ul>
+  
+  <!-- Tab Panels Container -->
+  <div class="p-6">
+    <!-- Account Tab Panel -->
+    <div 
+      role="tabpanel"
+      id="account-tabpanel"
+      aria-labelledby="account-tab"
+      data-tabs-target="panel"
+      data-panel-id="account"
+      class="<%= active_tab == 'account' ? '' : 'hidden' %>">
+      <%= render 'profiles/account_settings' %>
+    </div>
+    
+    <!-- Preferences Tab Panel -->
+    <div 
+      role="tabpanel"
+      id="preferences-tabpanel"
+      aria-labelledby="preferences-tab"
+      data-tabs-target="panel"
+      data-panel-id="preferences"
+      class="<%= active_tab == 'preferences' ? '' : 'hidden' %>">
+      <%= render 'profiles/preferences_form', user_preferences: user_preferences %>
+    </div>
+  </div>
+</div>
+

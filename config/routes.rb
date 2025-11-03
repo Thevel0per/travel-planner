@@ -22,6 +22,9 @@ Rails.application.routes.draw do
   # User preferences - singleton resource (one preference per user)
   resource :preferences, only: [ :show, :update ]
 
+  # Profile & Preferences page
+  get 'profile', to: 'profiles#show', as: :profile
+
   # Defines the root path route ("/")
   root 'trips#index'
 end

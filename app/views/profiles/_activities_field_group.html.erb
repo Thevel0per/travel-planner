@@ -1,0 +1,46 @@
+<%# Activities Field Group Partial %>
+<%# Custom form field group for activities selection with checkboxes %>
+<%# Usage: render 'profiles/activities_field_group', form: form, activities: user_preferences&.activities, errors: [] %>
+
+<% activities ||= nil %>
+<% errors ||= [] %>
+
+<%# Convert comma-separated string to array for checkbox state %>
+<% selected_activities = activities.present? ? activities.split(',').map(&:strip) : [] %>
+
+<div>
+  <%# Fieldset for checkbox group %>
+  <fieldset class="border-0 p-0 m-0" aria-describedby="<%= errors.any? ? 'activities_errors' : 'activities_description' %>">
+    <legend class="block antialiased font-sans text-sm font-medium leading-relaxed text-blue-gray-900 mb-2">
+      Activities
+    </legend>
+    
+    <%# Description %>
+    <p class="block antialiased font-sans text-xs font-normal leading-normal text-blue-gray-600 mb-4" id="activities_description">
+      Select one or more activities that interest you. You can select multiple options.
+    </p>
+    
+    <%# Checkbox Group Container %>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <% activity_options.each do |label, value| %>
+      <% is_selected = selected_activities.include?(value) %>
+      <div class="flex items-center">
+        <%= check_box_tag 'preferences[activities][]', value, is_selected, 
+            id: "activity_#{value}", 
+            class: "h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded #{errors.any? ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}" %>
+        <%= label_tag "activity_#{value}", label, 
+            class: "ml-2 block antialiased font-sans text-sm font-normal leading-normal text-blue-gray-700" %>
+      </div>
+    <% end %>
+    </div>
+  </fieldset>
+  
+  <%# Hidden field to ensure empty array is sent if no checkboxes are checked %>
+  <%= hidden_field_tag 'preferences[activities][]', '' %>
+  
+  <%# Error Message (conditionally rendered) %>
+  <% if errors.any? %>
+    <%= render 'shared/error_message', errors: errors, field_id: 'activities_errors' %>
+  <% end %>
+</div>
+

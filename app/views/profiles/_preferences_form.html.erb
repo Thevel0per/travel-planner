@@ -1,0 +1,54 @@
+<%# Preferences Form Partial %>
+<%# Form component for creating or updating user travel preferences %>
+<%# Usage: render 'profiles/preferences_form', user_preferences: @user_preferences %>
+
+<% user_preferences ||= nil %>
+
+<div class="space-y-6">
+  <h2 class="block antialiased font-sans text-2xl font-semibold leading-snug text-blue-gray-900">
+    Travel Preferences
+  </h2>
+  
+  <p class="block antialiased font-sans text-sm font-normal leading-normal text-blue-gray-700">
+    Set your travel preferences to help us generate personalized trip plans. All fields are optional and can be updated at any time.
+  </p>
+  
+  <%= form_with model: user_preferences, url: preferences_path, method: :put, html: { class: 'space-y-6', data: { turbo: true } } do |form| %>
+    <%# Budget Field %>
+    <%= render 'shared/form_field', 
+        form: form, 
+        field_name: :budget, 
+        field_type: 'select', 
+        select_options: budget_options, 
+        required: false %>
+    
+    <%# Accommodation Field %>
+    <%= render 'shared/form_field', 
+        form: form, 
+        field_name: :accommodation, 
+        field_type: 'select', 
+        select_options: accommodation_options, 
+        required: false %>
+    
+    <%# Activities Field Group (custom checkbox component) %>
+    <%= render 'profiles/activities_field_group', 
+        form: form, 
+        activities: user_preferences&.activities, 
+        errors: user_preferences&.errors&.[](:activities) || [] %>
+    
+    <%# Eating Habits Field %>
+    <%= render 'shared/form_field', 
+        form: form, 
+        field_name: :eating_habits, 
+        field_type: 'select', 
+        select_options: eating_habits_options, 
+        required: false %>
+    
+    <%# Form Actions %>
+    <%= render 'shared/form_actions', 
+        submit_text: 'Save Preferences', 
+        cancel_path: root_path, 
+        cancel_text: 'Cancel' %>
+  <% end %>
+</div>
+

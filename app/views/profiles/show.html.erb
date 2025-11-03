@@ -1,0 +1,11 @@
+<%# Profile & Preferences View %>
+<%# Main view that renders the Profile & Preferences page with tabbed interface %>
+
+<div class="max-w-4xl mx-auto px-4 py-8">
+  <%# Page Header %>
+  <%= render 'shared/page_header', title: 'Profile & Preferences' %>
+
+  <%# Tab Navigation Component %>
+  <%= render 'profiles/tab_navigation', active_tab: @active_tab, user_preferences: @user_preferences %>
+</div>
+

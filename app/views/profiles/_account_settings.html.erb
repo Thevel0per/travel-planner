@@ -1,0 +1,20 @@
+<%# Account Settings Partial %>
+<%# Displays account management content in the Account tab %>
+<%# Provides links and information for managing email and password settings via Devise %>
+
+<div class="space-y-6">
+  <h2 class="block antialiased font-sans text-2xl font-semibold leading-snug text-blue-gray-900">
+    Account Settings
+  </h2>
+  
+  <p class="block antialiased font-sans text-sm font-normal leading-normal text-blue-gray-700">
+    Manage your account information, including your email address and password. Use the link below to update your email or change your password.
+  </p>
+  
+  <div class="mt-6">
+    <%= link_to 'Edit Email & Password', edit_user_registration_path, 
+        class: 'inline-flex items-center justify-center rounded-lg bg-blue-500 px-6 py-2.5 text-sm font-medium text-white shadow-md shadow-blue-500/20 transition-all hover:shadow-lg hover:shadow-blue-500/40 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85] active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none', 
+        data: { ripple: "light" } %>
+  </div>
+</div>
+
