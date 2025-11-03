@@ -1,0 +1,87 @@
+<%# Navigation Sidebar Component %>
+<%# Provides responsive navigation sidebar with mobile toggle functionality %>
+<%# Only renders when user is authenticated %>
+
+<% if user_signed_in? %>
+  <div data-controller="sidebar">
+    <%# Mobile Overlay Backdrop %>
+    <div 
+      data-sidebar-target="overlay"
+      data-action="click->sidebar#close"
+      class="hidden fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+      aria-hidden="true"
+      aria-label="Close navigation menu"></div>
+
+    <%# Mobile Hamburger Toggle Button %>
+    <button
+      type="button"
+      data-sidebar-target="toggleButton"
+      data-action="click->sidebar#toggle"
+      aria-label="Toggle navigation menu"
+      aria-expanded="false"
+      aria-controls="main-navigation"
+      class="fixed top-4 left-4 z-50 p-2 rounded-lg bg-white shadow-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 lg:hidden">
+      <svg class="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
+
+    <%# Sidebar Navigation %>
+    <nav
+      id="main-navigation"
+      role="navigation"
+      aria-label="Main navigation"
+      data-sidebar-target="sidebar"
+      class="fixed top-0 left-0 h-full w-64 bg-gray-50 border-r border-gray-200 z-30 transform -translate-x-full transition-transform duration-300 ease-in-out lg:translate-x-0"
+      aria-hidden="true">
+      
+      <%# Sidebar Header %>
+      <div class="flex items-center justify-between p-6 border-b border-gray-200 bg-white">
+        <h2 class="text-xl font-bold text-gray-900">Travel Planner</h2>
+      </div>
+
+      <%# Navigation Links %>
+      <ul role="list" class="flex flex-col p-4 space-y-2">
+        <%# My Trips Link %>
+        <li role="none">
+          <% is_trips_active = controller_name == 'trips' %>
+          <%= link_to trips_path, 
+              class: "flex items-center px-4 py-3 text-gray-700 rounded-lg transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 #{'bg-blue-50 text-blue-700 font-medium' if is_trips_active}",
+              data: { turbo_frame: '_top' } do %>
+            <svg class="w-5 h-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <span>My Trips</span>
+          <% end %>
+        </li>
+
+        <%# Profile & Preferences Link %>
+        <li role="none">
+          <% is_profile_active = controller_name == 'profiles' || controller_name == 'preferences' %>
+          <%= link_to profile_path,
+              class: "flex items-center px-4 py-3 text-gray-700 rounded-lg transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 #{'bg-blue-50 text-blue-700 font-medium' if is_profile_active}",
+              data: { turbo_frame: '_top' } do %>
+            <svg class="w-5 h-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            <span>Profile & Preferences</span>
+          <% end %>
+        </li>
+
+        <%# Sign Out Button %>
+        <li role="none" class="mt-auto pt-4 border-t border-gray-200">
+          <%= button_to destroy_user_session_path,
+              method: :delete,
+              class: "w-full flex items-center px-4 py-3 text-red-600 rounded-lg transition-colors hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500",
+              data: { turbo_frame: '_top' } do %>
+            <svg class="w-5 h-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+            <span>Sign Out</span>
+          <% end %>
+        </li>
+      </ul>
+    </nav>
+  </div>
+<% end %>
+
