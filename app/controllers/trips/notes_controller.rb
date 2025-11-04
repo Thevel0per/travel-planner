@@ -18,7 +18,9 @@ class Trips::NotesController < ApplicationController
 
     if @note.save
       respond_to do |format|
-        format.turbo_stream
+        format.turbo_stream do
+          flash.now[:notice] = 'Note added successfully'
+        end
         format.json do
           dto = DTOs::NoteDTO.from_model(@note)
           render json: { note: dto.serialize }, status: :created

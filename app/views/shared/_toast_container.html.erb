@@ -2,7 +2,7 @@
 <%# Manages display of flash messages as toast notifications %>
 <%# Positioned in top-right corner, stacks toasts vertically %>
 
-<div class="fixed top-4 right-4 z-[9999] flex flex-col gap-4" aria-live="polite" aria-atomic="true">
+<div id="toast-container" class="fixed top-4 right-4 z-[9999] flex flex-col gap-4" aria-live="polite" aria-atomic="true">
   <% if flash[:notice].present? %>
     <%= render 'shared/success_toast', message: flash[:notice] %>
   <% end %>
