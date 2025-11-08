@@ -13,13 +13,18 @@
     Set your travel preferences to help us generate personalized trip plans. All fields are optional and can be updated at any time.
   </p>
   
-  <%= form_with model: user_preferences, url: preferences_path, method: :put, html: { class: 'space-y-6', data: { turbo: true } } do |form| %>
+  <%# Ensure form always has a model object (required for form_with) %>
+  <%# Always use persisted record if it exists, so form helpers can read values %>
+  <% form_model = user_preferences.present? ? user_preferences : UserPreference.new %>
+  
+  <%= form_with model: form_model, url: preferences_path, method: :put, html: { class: 'space-y-6', data: { turbo: true, turbo_cache: false } } do |form| %>
     <%# Budget Field %>
     <%= render 'shared/form_field', 
         form: form, 
         field_name: :budget, 
         field_type: 'select', 
-        select_options: budget_options, 
+        select_options: budget_options,
+        prompt: 'Select your budget preference...',
         required: false %>
     
     <%# Accommodation Field %>
@@ -27,7 +32,8 @@
         form: form, 
         field_name: :accommodation, 
         field_type: 'select', 
-        select_options: accommodation_options, 
+        select_options: accommodation_options,
+        prompt: 'Select your accommodation preference...',
         required: false %>
     
     <%# Activities Field Group (custom checkbox component) %>
@@ -41,7 +47,8 @@
         form: form, 
         field_name: :eating_habits, 
         field_type: 'select', 
-        select_options: eating_habits_options, 
+        select_options: eating_habits_options,
+        prompt: 'Select your eating habits preference...',
         required: false %>
     
     <%# Form Actions %>

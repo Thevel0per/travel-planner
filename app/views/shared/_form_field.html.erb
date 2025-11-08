@@ -27,10 +27,16 @@
         required: required || false,
         **textarea_attrs %>
   <% when 'select' %>
-    <%= form.select field_name.to_sym,
-        select_options || [],
-        { include_blank: !required },
+    <%# Use select_tag with hardcoded 'preferences[field_name]' name to match controller expectations %>
+    <%# form.select generates 'user_preference[field_name]' but controller expects 'preferences[field_name]' %>
+    <%# Activities work because they use hardcoded 'preferences[activities][]' name %>
+    <% selected_value = form.object.present? ? form.object.send(field_name.to_sym) : nil %>
+    <%# Use prompt for placeholder text if provided, otherwise use include_blank %>
+    <% prompt_text = local_assigns.has_key?(:prompt) ? prompt : nil %>
+    <%= select_tag "preferences[#{field_name}]",
+        options_for_select(select_options || [], selected_value),
         {
+          prompt: prompt_text || (!required ? 'Select an option...' : nil),
           id: field_id,
           class: base_input_classes.gsub('placeholder-gray-400', ''),
           required: required || false,
