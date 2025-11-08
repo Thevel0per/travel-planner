@@ -1,0 +1,24 @@
+<%# Turbo Stream for note deletion %>
+<%# Removes the note from the DOM and shows success/error message %>
+
+<% if @note.destroyed? %>
+  <%# Remove the note element from the DOM %>
+  <%= turbo_stream.remove "note_#{@note_id || @note.id}" %>
+  
+  <%# Update toast container to show flash message %>
+  <%= turbo_stream.update "toast-container" do %>
+    <%= render 'shared/toast_container' %>
+  <% end %>
+<% else %>
+  <%# Re-render the notes list to show error state %>
+  <% @trip.reload %>
+  <%= turbo_stream.update "notes_list" do %>
+    <%= render 'trips/notes_list', notes: @trip.notes %>
+  <% end %>
+  
+  <%# Show error message in toast %>
+  <%= turbo_stream.update "toast-container" do %>
+    <%= render 'shared/toast_container' %>
+  <% end %>
+<% end %>
+

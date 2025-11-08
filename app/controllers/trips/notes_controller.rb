@@ -7,7 +7,7 @@ class Trips::NotesController < ApplicationController
   # Ensure user is authenticated
   before_action :authenticate_user!
   before_action :set_trip
-  before_action :set_note, only: [ :update ]
+  before_action :set_note, only: [ :update, :destroy ]
 
   # POST /trips/:trip_id/notes
   # Creates a new note for the trip
@@ -69,6 +69,39 @@ class Trips::NotesController < ApplicationController
         end
         format.html do
           flash[:alert] = format_errors_for_flash(@note.errors.to_hash)
+          redirect_to trip_path(@trip)
+        end
+      end
+    end
+  end
+
+  # DELETE /trips/:trip_id/notes/:id
+  sig { void }
+  def destroy
+    note_id = @note.id
+    if @note.destroy
+      respond_to do |format|
+        format.turbo_stream do
+          @note_id = note_id
+          flash.now[:notice] = 'Note deleted successfully'
+        end
+        format.json do
+          render json: { message: 'Note deleted successfully' }, status: :ok
+        end
+        format.html do
+          flash[:notice] = 'Note deleted successfully'
+          redirect_to trip_path(@trip)
+        end
+      end
+    else
+      respond_to do |format|
+        format.turbo_stream { render :destroy, status: :unprocessable_content }
+        format.json do
+          error_dto = DTOs::ErrorResponseDTO.single_error('Failed to delete note')
+          render json: error_dto.serialize, status: :unprocessable_content
+        end
+        format.html do
+          flash[:alert] = 'Failed to delete note'
           redirect_to trip_path(@trip)
         end
       end
