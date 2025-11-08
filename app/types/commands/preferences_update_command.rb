@@ -26,13 +26,26 @@ module Commands
       )
     end
 
-    sig { returns(T::Hash[Symbol, T.untyped]) }
-    def to_model_attributes
+    sig { params(original_params: T::Hash[T.untyped, T.untyped]).returns(T::Hash[Symbol, T.untyped]) }
+    def to_model_attributes(original_params = {})
       attributes = {}
-      attributes[:budget] = budget if budget
-      attributes[:accommodation] = accommodation if accommodation
-      attributes[:activities] = activities if activities
-      attributes[:eating_habits] = eating_habits if eating_habits
+      preferences_params = original_params[:preferences] || original_params
+
+      # Only include attributes that were explicitly submitted in the form
+      # Empty strings from unselected dropdowns are converted to nil and excluded
+      # This preserves existing values for fields that weren't submitted
+      if preferences_params.key?(:budget)
+        attributes[:budget] = budget.presence
+      end
+      if preferences_params.key?(:accommodation)
+        attributes[:accommodation] = accommodation.presence
+      end
+      if preferences_params.key?(:activities)
+        attributes[:activities] = activities.presence
+      end
+      if preferences_params.key?(:eating_habits)
+        attributes[:eating_habits] = eating_habits.presence
+      end
       attributes
     end
   end

@@ -14,7 +14,8 @@ module Commands
     sig { params(params: T::Hash[T.untyped, T.untyped]).returns(NoteUpdateCommand) }
     def self.from_params(params)
       note_params = params[:note] || params
-      new(content: note_params[:content])
+      content = note_params[:content] || note_params['content'] || ''
+      new(content: content.to_s)
     end
 
     sig { returns(T::Hash[Symbol, T.untyped]) }

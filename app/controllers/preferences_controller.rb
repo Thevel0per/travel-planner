@@ -55,7 +55,7 @@ class PreferencesController < ApplicationController
 
     # Parse request parameters using command object
     command = Commands::PreferencesUpdateCommand.from_params(processed_params)
-    attributes = command.to_model_attributes
+    attributes = command.to_model_attributes(processed_params)
 
     # Find or initialize user preferences (upsert pattern)
     @user_preferences = current_user.user_preference || current_user.build_user_preference

@@ -148,7 +148,8 @@ class ApplicationController < ActionController::Base
   # Formats error hash for flash messages
   def format_errors_for_flash(errors_hash)
     errors_hash.flat_map do |field, messages|
-      messages.map { |msg| field == 'base' ? msg : "#{field.humanize}: #{msg}" }
+      field_str = field.to_s
+      messages.map { |msg| field_str == 'base' ? msg : "#{field_str.humanize}: #{msg}" }
     end.join(', ')
   end
 end

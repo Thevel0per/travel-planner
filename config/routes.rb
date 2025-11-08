@@ -13,7 +13,7 @@ Rails.application.routes.draw do
   # Trips resource - RESTful routes for trip management
   resources :trips, only: [ :index, :show, :new, :create, :edit, :update, :destroy ] do
     # Nested resources for notes
-    resources :notes, only: [ :create ], module: :trips
+    resources :notes, only: [ :create, :update ], module: :trips
 
     # Nested resources for generated plans
     resources :generated_plans, only: [ :create, :show, :update ], module: :trips

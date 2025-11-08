@@ -2,7 +2,7 @@
 <%# Displays a single note with content and timestamps %>
 <%# Usage: render 'trips/note_item', note: note %>
 
-<div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+<div id="note_<%= note.id %>" class="bg-gray-50 rounded-lg p-4 border border-gray-200">
   <!-- Note Content -->
   <p class="text-sm antialiased font-normal leading-relaxed text-gray-900 whitespace-pre-wrap">
     <%= simple_format(note.content, {}, wrapper_tag: 'div', class: 'mb-3') %>
