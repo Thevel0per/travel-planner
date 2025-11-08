@@ -177,14 +177,10 @@ GEM
       net-protocol
     net-ssh (7.3.0)
     netrc (0.11.0)
-    nio4r (2.7.4)
+    nio4r (2.7.5)
     nokogiri (1.18.10-aarch64-linux-gnu)
       racc (~> 1.4)
     nokogiri (1.18.10-aarch64-linux-musl)
-      racc (~> 1.4)
-    nokogiri (1.18.10-arm-linux-gnu)
-      racc (~> 1.4)
-    nokogiri (1.18.10-arm-linux-musl)
       racc (~> 1.4)
     nokogiri (1.18.10-arm64-darwin)
       racc (~> 1.4)
@@ -217,7 +213,7 @@ GEM
       date
       stringio
     public_suffix (6.0.2)
-    puma (7.0.4)
+    puma (7.1.0)
       nio4r (~> 2.0)
     raabro (1.4.0)
     racc (1.8.1)
@@ -429,8 +425,6 @@ PLATFORMS
   aarch64-linux
   aarch64-linux-gnu
   aarch64-linux-musl
-  arm-linux-gnu
-  arm-linux-musl
   arm64-darwin-24
   x86_64-linux
   x86_64-linux-gnu
