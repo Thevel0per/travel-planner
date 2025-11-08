@@ -12,16 +12,20 @@
   <% base_input_classes = "mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-20 #{field_errors.any? ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}" %>
   <% aria_attrs = field_errors.any? ? { 'aria-describedby': "#{field_id}_errors" } : {} %>
   
+  <%# Build optional attributes hash %>
+  <% optional_attrs = {} %>
+  <% optional_attrs[:placeholder] = placeholder if local_assigns.has_key?(:placeholder) && placeholder.present? %>
+  <% optional_attrs[:maxlength] = maxlength if local_assigns.has_key?(:maxlength) && maxlength.present? %>
+  
   <% case field_type.to_s.downcase %>
   <% when 'textarea' %>
+    <% textarea_attrs = optional_attrs.merge(aria_attrs) %>
+    <% textarea_attrs[:rows] = (local_assigns.has_key?(:textarea_rows) && textarea_rows.present?) ? textarea_rows : 3 %>
     <%= form.text_area field_name.to_sym,
         id: field_id,
         class: base_input_classes,
         required: required || false,
-        placeholder: placeholder,
-        rows: textarea_rows || 3,
-        maxlength: maxlength,
-        **aria_attrs %>
+        **textarea_attrs %>
   <% when 'select' %>
     <%= form.select field_name.to_sym,
         select_options || [],
@@ -49,26 +53,20 @@
         id: field_id,
         class: base_input_classes,
         required: required || false,
-        placeholder: placeholder,
-        maxlength: maxlength,
-        **aria_attrs %>
+        **optional_attrs.merge(aria_attrs) %>
   <% when 'password' %>
     <%= form.password_field field_name.to_sym,
         id: field_id,
         class: base_input_classes,
         required: required || false,
-        placeholder: placeholder,
-        maxlength: maxlength,
-        **aria_attrs %>
+        **optional_attrs.merge(aria_attrs) %>
   <% else %>
     <%# Default to text_field for text, and other standard input types %>
     <%= form.text_field field_name.to_sym,
         id: field_id,
         class: base_input_classes,
         required: required || false,
-        placeholder: placeholder,
-        maxlength: maxlength,
-        **aria_attrs %>
+        **optional_attrs.merge(aria_attrs) %>
   <% end %>
   
   <%# Error Message (conditionally rendered) %>

@@ -1,0 +1,42 @@
+<%# Resend Confirmation Instructions Form %>
+<%# Allows users to request a new confirmation email %>
+
+<div data-controller="material-tailwind">
+  <main class="container mx-auto px-4 py-8 max-w-2xl">
+    <%= render 'shared/page_header', title: 'Resend Confirmation Instructions' %>
+
+    <%= form_with model: resource, as: resource_name, url: confirmation_path(resource_name), html: { method: :post, class: 'space-y-6', data: { turbo: true } } do |form| %>
+      <%# Email Field - Pre-fill with unconfirmed email if pending reconfirmation %>
+      <% email_value = resource.pending_reconfirmation? ? resource.unconfirmed_email : resource.email %>
+      <div>
+        <%= form.label :email, "Email", class: "block antialiased font-sans text-sm font-medium leading-relaxed text-blue-gray-900 mb-2 after:content-['*'] after:text-red-500 after:ml-1" %>
+        <% field_errors = form.object.present? && form.object.errors[:email].present? ? form.object.errors[:email] : [] %>
+        <% field_id = "#{form.object_name}_email" %>
+        <% base_input_classes = "mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-20 #{field_errors.any? ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}" %>
+        <% aria_attrs = field_errors.any? ? { 'aria-describedby': "#{field_id}_errors" } : {} %>
+        <%= form.email_field :email, 
+            id: field_id,
+            value: email_value,
+            autofocus: true,
+            autocomplete: "email",
+            required: true,
+            placeholder: 'Enter your email address',
+            class: base_input_classes,
+            **aria_attrs %>
+        <% if field_errors.any? %>
+          <%= render 'shared/error_message', errors: field_errors, field_id: "#{field_id}_errors" %>
+        <% end %>
+      </div>
+
+      <%# Form Actions %>
+      <%= render 'shared/form_actions', submit_text: 'Resend Instructions' %>
+<% end %>
+
+    <%# Link to Sign In %>
+    <div class="mt-6 text-center">
+      <%= link_to "Back to Sign In", new_session_path(resource_name), 
+          class: 'inline-flex items-center justify-center text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors', 
+          data: { ripple: "light" } %>
+    </div>
+  </main>
+</div>

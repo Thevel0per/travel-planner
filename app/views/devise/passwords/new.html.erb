@@ -1,0 +1,33 @@
+<%# Forgot Password Form - Request Password Reset %>
+<%# Allows users to request a password reset link via email %>
+
+<div data-controller="material-tailwind">
+  <main class="container mx-auto px-4 py-8 max-w-2xl">
+    <%= render 'shared/page_header', title: 'Forgot Your Password?' %>
+    
+    <%# Descriptive Text %>
+    <p class="block antialiased font-sans text-sm font-normal leading-normal text-blue-gray-700 mb-6">
+      Enter your email address and we'll send you a link to reset your password.
+    </p>
+
+    <%= form_with model: resource, as: resource_name, url: password_path(resource_name), html: { method: :post, class: 'space-y-6', data: { turbo: true } } do |form| %>
+      <%# Email Field %>
+      <%= render 'shared/form_field', 
+          form: form, 
+          field_name: :email, 
+          field_type: 'email', 
+          required: true, 
+          placeholder: 'Enter your email address' %>
+      
+      <%# Form Actions %>
+      <%= render 'shared/form_actions', submit_text: 'Send Reset Instructions' %>
+<% end %>
+
+    <%# Link to Sign In %>
+    <div class="mt-6 text-center">
+      <%= link_to "Back to Sign In", new_session_path(resource_name), 
+          class: 'inline-flex items-center justify-center text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors', 
+          data: { ripple: "light" } %>
+    </div>
+  </main>
+</div>

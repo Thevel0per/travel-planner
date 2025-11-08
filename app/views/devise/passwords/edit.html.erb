@@ -1,0 +1,75 @@
+<%# Reset Password Form - Set New Password %>
+<%# Allows users to set a new password after clicking reset link from email %>
+
+<div data-controller="material-tailwind">
+  <main class="container mx-auto px-4 py-8 max-w-2xl">
+    <%= render 'shared/page_header', title: 'Reset Your Password' %>
+    
+    <%# Error Message for Invalid/Expired Token %>
+    <% if resource.errors[:reset_password_token].any? %>
+      <div class="rounded-lg bg-red-50 border border-red-200 p-6 mb-6">
+        <div class="flex items-start">
+          <svg class="h-6 w-6 text-red-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <div class="ml-3">
+            <p class="text-sm font-medium text-red-800 mb-2">
+              <%= resource.errors[:reset_password_token].first %>
+            </p>
+            <%= link_to "Request a new password reset", new_password_path(resource_name), 
+                class: 'text-sm font-medium text-red-600 hover:text-red-800 underline' %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+    
+    <%= form_with model: resource, as: resource_name, url: password_path(resource_name), html: { method: :put, class: 'space-y-6', data: { turbo: true } } do |form| %>
+      <%# Hidden field for reset_password_token (automatically included by Devise) %>
+      <%= form.hidden_field :reset_password_token %>
+      
+      <%# Password Field %>
+      <div>
+        <%= form.label :password, "New password", class: "block antialiased font-sans text-sm font-medium leading-relaxed text-blue-gray-900 mb-2 after:content-['*'] after:text-red-500 after:ml-1" %>
+        <% if @minimum_password_length %>
+          <p class="block antialiased font-sans text-xs font-normal leading-normal text-blue-gray-600 mb-2">
+            (<%= @minimum_password_length %> characters minimum)
+          </p>
+        <% end %>
+        <%# Use form_field component but override the label since we already have one above %>
+        <% field_errors = form.object.present? && form.object.errors[:password].present? ? form.object.errors[:password] : [] %>
+        <% field_id = "#{form.object_name}_password" %>
+        <% base_input_classes = "mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-20 #{field_errors.any? ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}" %>
+        <% aria_attrs = field_errors.any? ? { 'aria-describedby': "#{field_id}_errors" } : {} %>
+        <%= form.password_field :password, 
+            id: field_id,
+            class: base_input_classes,
+            required: true,
+            placeholder: 'Enter your new password',
+            autofocus: true,
+            autocomplete: "new-password",
+            **aria_attrs %>
+        <% if field_errors.any? %>
+          <%= render 'shared/error_message', errors: field_errors, field_id: "#{field_id}_errors" %>
+        <% end %>
+  </div>
+
+      <%# Password Confirmation Field %>
+      <%= render 'shared/form_field', 
+          form: form, 
+          field_name: :password_confirmation, 
+          field_type: 'password', 
+          required: true, 
+          placeholder: 'Confirm your new password' %>
+      
+      <%# Form Actions %>
+      <%= render 'shared/form_actions', submit_text: 'Update Password' %>
+<% end %>
+
+    <%# Link to Sign In %>
+    <div class="mt-6 text-center">
+      <%= link_to "Back to Sign In", new_session_path(resource_name), 
+          class: 'inline-flex items-center justify-center text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors', 
+          data: { ripple: "light" } %>
+    </div>
+  </main>
+</div>

@@ -20,5 +20,8 @@ class ProfilesController < ApplicationController
 
     # Ensure active_tab is valid ('account' or 'preferences')
     @active_tab = 'preferences' unless %w[account preferences].include?(@active_tab)
+
+    # Set minimum password length for Devise forms (used in account settings)
+    @minimum_password_length = Devise.password_length.min
   end
 end

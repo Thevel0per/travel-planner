@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= content_for(:title) || "Travel Planner" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= yield :head %>
+
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon.png">
+
+    <%# Includes all stylesheet files in app/assets/stylesheets %>
+    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
+    
+    <%# Material Tailwind CSS and JavaScript %>
+    <link rel="stylesheet" href="https://unpkg.com/@material-tailwind/html@latest/styles/material-tailwind.css" />
+    <script src="https://unpkg.com/@material-tailwind/html@latest/scripts/ripple.js"></script>
+    <script src="https://unpkg.com/@material-tailwind/html@latest/scripts/dialog.js"></script>
+    
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body class="bg-gray-50">
+    <%# Application Header - Shows app name for branding %>
+    <header class="bg-white border-b border-gray-200 py-6">
+      <div class="container mx-auto px-4">
+        <div class="flex items-center justify-center">
+          <h1 class="text-2xl font-bold text-blue-gray-900">Travel Planner</h1>
+        </div>
+      </div>
+    </header>
+
+    <%# Main Content Area - Centered for authentication forms, no sidebar %>
+    <div class="min-h-screen">
+      <%= yield %>
+    </div>
+    
+    <%# Toast Container - Displays flash messages as toast notifications %>
+    <%= render 'shared/toast_container' %>
+  </body>
+</html>
+

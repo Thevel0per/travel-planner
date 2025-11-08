@@ -1,0 +1,57 @@
+<%# Login Form - Sign In %>
+<%# Uses shared form components and Material Design styling %>
+
+<div data-controller="material-tailwind">
+  <main class="container mx-auto px-4 py-8 max-w-2xl">
+    <%= render 'shared/page_header', title: 'Sign In' %>
+
+    <%= form_with model: resource, as: resource_name, url: session_path(resource_name), html: { class: 'space-y-6', data: { turbo: true } } do |form| %>
+      <%# Email Field %>
+      <%= render 'shared/form_field', 
+          form: form, 
+          field_name: :email, 
+          field_type: 'email', 
+          required: true, 
+          placeholder: 'Enter your email address' %>
+      
+      <%# Password Field %>
+      <%= render 'shared/form_field', 
+          form: form, 
+          field_name: :password, 
+          field_type: 'password', 
+          required: true, 
+          placeholder: 'Enter your password' %>
+      
+      <%# Remember Me Checkbox %>
+  <% if devise_mapping.rememberable? %>
+        <div class="flex items-center">
+          <%= form.check_box :remember_me, 
+              id: "user_remember_me",
+              class: "h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" %>
+          <%= form.label :remember_me, "Remember me", 
+              class: "ml-2 block antialiased font-sans text-sm font-normal leading-normal text-blue-gray-700" %>
+    </div>
+  <% end %>
+
+      <%# Form Actions %>
+      <%= render 'shared/form_actions', submit_text: 'Sign In' %>
+<% end %>
+
+    <%# Links to Registration, Password Reset, and Confirmation %>
+    <div class="mt-6 space-y-3 text-center">
+      <%= link_to "Don't have an account? Sign up", new_registration_path(resource_name), 
+          class: 'block text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors', 
+          data: { ripple: "light" } %>
+      
+      <%= link_to "Forgot your password?", new_password_path(resource_name), 
+          class: 'block text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors', 
+          data: { ripple: "light" } %>
+      
+      <% if devise_mapping.confirmable? && controller_name != 'confirmations' %>
+        <%= link_to "Didn't receive confirmation instructions?", new_confirmation_path(resource_name), 
+            class: 'block text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors', 
+            data: { ripple: "light" } %>
+      <% end %>
+    </div>
+  </main>
+</div>

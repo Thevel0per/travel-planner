@@ -1,5 +1,14 @@
 Rails.application.routes.draw do
-  devise_for :users
+  devise_for :users, controllers: { registrations: 'registrations' }, skip: [ :registrations ]
+
+  # Custom registration routes (exclude edit, keep new, create, update, destroy)
+  devise_scope :user do
+    get 'users/sign_up', to: 'registrations#new', as: :new_user_registration
+    post 'users', to: 'registrations#create', as: :user_registration
+    put 'users', to: 'registrations#update'
+    patch 'users', to: 'registrations#update'
+    delete 'users', to: 'registrations#destroy'
+  end
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

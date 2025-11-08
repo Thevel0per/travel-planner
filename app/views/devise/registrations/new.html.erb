@@ -1,0 +1,44 @@
+<%# Registration Form - Create Account %>
+<%# Uses shared form components and Material Design styling %>
+
+<div data-controller="material-tailwind">
+  <main class="container mx-auto px-4 py-8 max-w-2xl">
+    <%= render 'shared/page_header', title: 'Create Account' %>
+
+    <%= form_with model: resource, as: resource_name, url: registration_path(resource_name), html: { class: 'space-y-6', data: { turbo: true } } do |form| %>
+      <%# Email Field %>
+      <%= render 'shared/form_field', 
+          form: form, 
+          field_name: :email, 
+          field_type: 'email', 
+          required: true, 
+          placeholder: 'Enter your email address' %>
+      
+      <%# Password Field %>
+      <%= render 'shared/form_field', 
+          form: form, 
+          field_name: :password, 
+          field_type: 'password', 
+          required: true, 
+          placeholder: 'Enter your password' %>
+      
+      <%# Password Confirmation Field %>
+      <%= render 'shared/form_field', 
+          form: form, 
+          field_name: :password_confirmation, 
+          field_type: 'password', 
+          required: true, 
+          placeholder: 'Confirm your password' %>
+      
+      <%# Form Actions %>
+      <%= render 'shared/form_actions', submit_text: 'Sign Up' %>
+<% end %>
+
+    <%# Link to Sign In %>
+    <div class="mt-6 text-center">
+      <%= link_to "Already have an account? Sign in", new_session_path(resource_name), 
+          class: 'inline-flex items-center justify-center text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors', 
+          data: { ripple: "light" } %>
+    </div>
+  </main>
+</div>

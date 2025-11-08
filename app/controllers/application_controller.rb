@@ -10,7 +10,15 @@ class ApplicationController < ActionController::Base
   rescue_from ActiveRecord::RecordNotFound, with: :handle_not_found
   rescue_from Pagy::OverflowError, with: :handle_pagination_overflow
 
+  # Use Devise layout for authentication pages, application layout for authenticated pages
+  layout :layout_by_resource
+
   private
+
+  # Determines which layout to use based on whether it's a Devise controller
+  def layout_by_resource
+    devise_controller? ? 'devise' : 'application'
+  end
 
   # Paginates a query service and handles validation
   # @param query_service [Object] A query service object with valid?, errors, page, per_page, and call methods
