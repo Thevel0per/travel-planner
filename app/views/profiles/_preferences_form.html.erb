@@ -17,7 +17,7 @@
   <%# Always use persisted record if it exists, so form helpers can read values %>
   <% form_model = user_preferences.present? ? user_preferences : UserPreference.new %>
   
-  <%= form_with model: form_model, url: preferences_path, method: :put, html: { class: 'space-y-6', data: { turbo: true, turbo_cache: false } } do |form| %>
+  <%= form_with model: form_model, url: preferences_path, method: :put, html: { class: 'space-y-6', data: { turbo: true, turbo_temporary: true } } do |form| %>
     <%# Budget Field %>
     <%= render 'shared/form_field', 
         form: form, 
