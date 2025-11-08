@@ -3,7 +3,7 @@
 
 <%= link_to trip_path(trip), 
     class: "relative flex flex-col bg-clip-border rounded-xl bg-white text-gray-700 shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden group",
-    data: { ripple: "light" },
+    data: { ripple: "light", turbo_prefetch: false },
     "aria-label": "View trip to #{trip.destination}" do %>
   
   <!-- Card Content -->
