@@ -13,7 +13,7 @@
   <%# Re-render the notes list to show error state %>
   <% @trip.reload %>
   <%= turbo_stream.update "notes_list" do %>
-    <%= render 'trips/notes_list', notes: @trip.notes %>
+    <%= render 'trips/notes_list', notes: @trip.notes.order(created_at: :desc) %>
   <% end %>
   
   <%# Show error message in toast %>

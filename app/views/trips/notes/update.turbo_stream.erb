@@ -5,8 +5,8 @@
   <%# Reload the note to get updated timestamps %>
   <% @note.reload %>
   
-  <%# Update the specific note item in the list %>
-  <%= turbo_stream.update "note_#{@note.id}" do %>
+  <%# Replace the entire note item to avoid nesting %>
+  <%= turbo_stream.replace "note_#{@note.id}" do %>
     <%= render 'trips/note_item', note: @note %>
   <% end %>
   
@@ -20,7 +20,7 @@
   <%# to show any error state. In a real implementation, you might want inline editing %>
   <% @trip.reload %>
   <%= turbo_stream.update "notes_list" do %>
-    <%= render 'trips/notes_list', notes: @trip.notes %>
+    <%= render 'trips/notes_list', notes: @trip.notes.order(created_at: :desc) %>
   <% end %>
   
   <%# Show error message in toast %>

@@ -7,7 +7,7 @@
   
   <%# Update the entire notes list to handle both empty and populated states %>
   <%= turbo_stream.update "notes_list" do %>
-    <%= render 'trips/notes_list', notes: @trip.notes %>
+    <%= render 'trips/notes_list', notes: @trip.notes.order(created_at: :desc) %>
   <% end %>
   
   <%# Reset the form - replace inner content only (form already has the wrapper div) %>
