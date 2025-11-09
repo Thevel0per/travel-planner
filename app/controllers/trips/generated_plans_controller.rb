@@ -43,7 +43,8 @@ class Trips::GeneratedPlansController < ApplicationController
     @generated_plan_model = @trip.generated_plans.find(params[:id])
 
     # Parse command from params
-    command = Commands::GeneratedPlanUpdateCommand.from_params(params.permit!.to_h)
+    permitted_params = params.require(:generated_plan).permit(:rating).to_h
+    command = Commands::GeneratedPlanUpdateCommand.from_params(permitted_params)
 
     # Update plan
     @generated_plan_model.update!(command.to_model_attributes)

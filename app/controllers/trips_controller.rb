@@ -71,7 +71,9 @@ class TripsController < ApplicationController
   sig { void }
   def create
     # Extract parameters using command object
-    command = Commands::TripCreateCommand.from_params(params.permit!.to_h)
+    command = Commands::TripCreateCommand.from_params(
+      params.require(:trip).permit(:name, :destination, :start_date, :end_date, :number_of_people).to_h
+    )
 
     # Create trip using service object
     service = Trips::Create.new(user: current_user, command:)
@@ -111,7 +113,9 @@ class TripsController < ApplicationController
   sig { void }
   def update
     # Parse request parameters using command object
-    command = Commands::TripUpdateCommand.from_params(params.permit!.to_h)
+    command = Commands::TripUpdateCommand.from_params(
+      params.require(:trip).permit(:name, :destination, :start_date, :end_date, :number_of_people).to_h
+    )
     attributes = command.to_model_attributes
 
     # Update trip with attributes

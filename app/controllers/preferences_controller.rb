@@ -51,7 +51,8 @@ class PreferencesController < ApplicationController
   sig { void }
   def update
     # Convert activities array to comma-separated string if present
-    processed_params = process_preferences_params(params.permit!.to_h)
+    permitted_params = params.fetch(:preferences, {}).permit(:budget, :accommodation, :activities, :eating_habits).to_h
+    processed_params = process_preferences_params({ preferences: permitted_params })
 
     # Parse request parameters using command object
     command = Commands::PreferencesUpdateCommand.from_params(processed_params)

@@ -14,7 +14,8 @@ class Trips::NotesController < ApplicationController
   # Returns Turbo Stream response for seamless updates
   sig { void }
   def create
-    command = Commands::NoteCreateCommand.from_params(params.permit!.to_h)
+    permitted_params = params.require(:note).permit(:content).to_h
+    command = Commands::NoteCreateCommand.from_params(permitted_params)
     @note = @trip.notes.build(command.to_model_attributes)
 
     if @note.save
@@ -43,7 +44,8 @@ class Trips::NotesController < ApplicationController
   # Returns updated note data in JSON or Turbo Stream format
   sig { void }
   def update
-    command = Commands::NoteUpdateCommand.from_params(params.permit!.to_h)
+    permitted_params = params.fetch(:note, {}).permit(:content).to_h
+    command = Commands::NoteUpdateCommand.from_params(permitted_params)
     attributes = command.to_model_attributes
 
     if @note.update(attributes)
