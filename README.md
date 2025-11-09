@@ -107,7 +107,7 @@ Make sure you have the following software installed on your system:
 This project includes several scripts to help with development:
 
 -   `bin/dev`: Starts the development server (Rails server, CSS watcher, etc.).
--   `bin/rails test`: Runs the automated test suite.
+-   `bin/rails spec`: Runs the automated test suite.
 -   `bin/rubocop`: Lints the codebase for style consistency.
 -   `bin/brakeman`: Runs a static analysis for security vulnerabilities.
 
