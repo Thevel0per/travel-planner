@@ -32,10 +32,10 @@ class RegistrationsController < Devise::RegistrationsController
     # Convert to hash for consistent handling
     params_hash = if params.is_a?(ActionController::Parameters)
                     params.to_h.with_indifferent_access
-                  else
+    else
                     params.to_h.with_indifferent_access
-                  end
-    
+    end
+
     # If password is blank, we're only updating email - skip current_password requirement
     if params_hash[:password].blank? && params_hash[:password_confirmation].blank?
       # Create hash without current_password, password, and password_confirmation
@@ -47,11 +47,10 @@ class RegistrationsController < Devise::RegistrationsController
       # Convert params to hash for update_with_password if needed
       password_params = if params.is_a?(ActionController::Parameters)
                           params.to_h.with_indifferent_access
-                        else
+      else
                           params.to_h.with_indifferent_access
-                        end
+      end
       T.unsafe(resource).update_with_password(password_params)
     end
   end
 end
-
