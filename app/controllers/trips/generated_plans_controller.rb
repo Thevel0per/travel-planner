@@ -114,7 +114,7 @@ class Trips::GeneratedPlansController < ApplicationController
     )
 
     respond_to do |format|
-      format.turbo_stream
+      format.turbo_stream { render status: :accepted }
       format.json do
         dto = DTOs::GeneratedPlanDTO.from_model(@generated_plan)
         render json: {

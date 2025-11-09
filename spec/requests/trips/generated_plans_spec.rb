@@ -136,21 +136,12 @@ RSpec.describe 'Trips::GeneratedPlans', type: :request do
           end
 
           it 'returns Turbo Stream response for HTML requests' do
-            # Skip if the required partial doesn't exist yet
-            unless File.exist?(Rails.root.join('app/views/trips/generated_plans/_generated_plans_list.html.erb'))
-              skip 'Partial trips/generated_plans/_generated_plans_list not yet implemented'
-            end
-
             post trip_generated_plans_path(trip), headers: { 'Accept' => 'text/vnd.turbo-stream.html' }
             expect(response).to have_http_status(:accepted)
             expect(response.content_type).to include('text/vnd.turbo-stream.html')
           end
 
           it 'includes generated plan in Turbo Stream response' do
-            # Skip this test if the partial doesn't exist yet
-            skip 'Partial trips/generated_plans/_generated_plans_list not yet implemented' unless \
-              File.exist?(Rails.root.join('app/views/trips/generated_plans/_generated_plans_list.html.erb'))
-
             post trip_generated_plans_path(trip), headers: { 'Accept' => 'text/vnd.turbo-stream.html' }
             expect(response.body).to include('generated_plans_list')
           end
@@ -180,14 +171,23 @@ RSpec.describe 'Trips::GeneratedPlans', type: :request do
           end
         end
 
-        # Note: Testing validation errors requires complex stubbing of ActiveRecord associations
-        # These scenarios are tested via model validations and controller error handling code review
-        # In practice, validation errors are rare since we set valid defaults (status: 'pending', content: '{}')
         context 'error handling' do
-          it 'handles validation errors gracefully (tested via code review)' do
-            # Controller includes rescue_from ActiveRecord::RecordInvalid
-            # This ensures 422 responses with error details
-            skip 'Validation error testing requires complex ActiveRecord stubbing'
+          it 'handles validation errors gracefully' do
+            # Force a validation error by stubbing the association's create! method
+            invalid_plan = GeneratedPlan.new(trip:, status: 'invalid_status', content: '{}')
+            invalid_plan.valid? # Trigger validations to populate errors
+
+            # Stub the association proxy's create! method
+            # The controller uses @trip.generated_plans.create!, so we need to stub the association
+            allow_any_instance_of(Trip).to receive_message_chain(:generated_plans, :create!).and_raise(
+              ActiveRecord::RecordInvalid.new(invalid_plan)
+            )
+
+            post trip_generated_plans_path(trip), as: :json
+            expect(response).to have_http_status(:unprocessable_content)
+
+            json = JSON.parse(response.body)
+            expect(json).to have_key('errors')
           end
         end
 
@@ -218,16 +218,19 @@ RSpec.describe 'Trips::GeneratedPlans', type: :request do
           end
         end
 
-        # Note: Testing unexpected errors requires complex stubbing
-        # Error handling is verified via code review - controller includes rescue_from StandardError
-        # In practice, these errors are extremely rare (database failures, etc.)
         context 'error handling coverage' do
-          it 'handles unexpected errors via rescue block (tested via code review)' do
-            # Controller includes rescue_from StandardError that:
-            # - Logs error with full backtrace
-            # - Marks plan as failed if it was created
-            # - Returns 500 with generic message
-            skip 'Unexpected error testing requires complex ActiveRecord stubbing'
+          it 'handles unexpected errors via rescue block' do
+            # Stub create! to raise an unexpected error (simulating database failure, etc.)
+            allow_any_instance_of(Trip).to receive_message_chain(:generated_plans, :create!).and_raise(
+              StandardError.new('Unexpected database error')
+            )
+
+            post trip_generated_plans_path(trip), as: :json
+            expect(response).to have_http_status(:internal_server_error)
+
+            json = JSON.parse(response.body)
+            expect(json).to have_key('error')
+            expect(json['error']).to eq('An unexpected error occurred')
           end
         end
 

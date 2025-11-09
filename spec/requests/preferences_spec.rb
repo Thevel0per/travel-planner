@@ -444,7 +444,7 @@ RSpec.describe 'Preferences', type: :request do
           put preferences_path,
               params: { preferences: { budget: 'standard' } }
 
-          expect(response).to redirect_to(preferences_path)
+          expect(response).to redirect_to(profile_path(tab: 'preferences'))
           expect(flash[:notice]).to eq('Preferences updated successfully')
         end
 
@@ -452,7 +452,7 @@ RSpec.describe 'Preferences', type: :request do
           put preferences_path,
               params: { preferences: { budget: 'invalid' } }
 
-          expect(response).to redirect_to(preferences_path)
+          expect(response).to redirect_to(profile_path(tab: 'preferences'))
           expect(flash[:alert]).to eq('Failed to update preferences')
         end
       end

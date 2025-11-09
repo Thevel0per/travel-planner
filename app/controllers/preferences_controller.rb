@@ -82,11 +82,8 @@ class PreferencesController < ApplicationController
           render json: error_dto.serialize, status: :unprocessable_content
         end
         format.html do
-          # Render profile view with form errors
-          # Set instance variables needed by the profile view
-          @active_tab = 'preferences'
-          # @user_preferences is already set above with errors
-          render 'profiles/show', status: :unprocessable_content, layout: 'application'
+          flash[:alert] = 'Failed to update preferences'
+          redirect_to profile_path(tab: 'preferences')
         end
       end
     end

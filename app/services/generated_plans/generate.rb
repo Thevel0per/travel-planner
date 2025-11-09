@@ -65,7 +65,6 @@ module GeneratedPlans
       rescue => e
         Rails.logger.error("ERROR: Failed to call OpenRouter API: #{e.class.name}: #{e.message}")
         Rails.logger.error(e.backtrace.first(10).join("\n"))
-        STDERR.puts "ERROR: Failed to call OpenRouter API: #{e.class.name}: #{e.message}"
         generated_plan.mark_as_failed!
         return ServiceResult.failure(
           error_message: "API call failed: #{e.message}",
@@ -80,7 +79,6 @@ module GeneratedPlans
           generated_plan.mark_as_completed!(result.data.to_json_string)
         else
           Rails.logger.error("ERROR: Plan processing failed: #{result.error_message}")
-          STDERR.puts "ERROR: Plan processing failed: #{result.error_message}"
           generated_plan.mark_as_failed!
         end
 
@@ -88,7 +86,6 @@ module GeneratedPlans
       else
         error_msg = response.error&.message || 'Unknown error'
         Rails.logger.error("ERROR: OpenRouter API returned error: #{error_msg}")
-        STDERR.puts "ERROR: OpenRouter API returned error: #{error_msg}"
         generated_plan.mark_as_failed!
         ServiceResult.failure(
           error_message: error_msg,
@@ -154,8 +151,6 @@ module GeneratedPlans
         Rails.logger.error("ERROR: #{error_msg}")
         Rails.logger.error("ERROR: Backtrace: #{e.backtrace.first(10).join("\n")}")
         Rails.logger.error("ERROR: Response content (first 500 chars): #{response.content&.first(500)}")
-        STDERR.puts "ERROR: #{error_msg}"
-        STDERR.puts "ERROR: Response content (first 500 chars): #{response.content&.first(500)}"
         return ServiceResult.failure(
           error_message: "Failed to parse response: #{e.message}",
           retryable: true
@@ -168,7 +163,6 @@ module GeneratedPlans
 
       if validation_errors.any?
         Rails.logger.warn("Plan validation errors: #{validation_errors.join(', ')}")
-        STDERR.puts "Plan validation errors: #{validation_errors.join(', ')}"
         # Validation errors are retryable - the AI might fix them on retry
         return ServiceResult.failure(
           error_message: "Invalid plan: #{validation_errors.join(', ')}",

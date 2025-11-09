@@ -24,7 +24,7 @@ module Commands
         destination: trip_params[:destination],
         start_date: trip_params[:start_date],
         end_date: trip_params[:end_date],
-        number_of_people: trip_params[:number_of_people].to_i
+        number_of_people: trip_params.fetch(:number_of_people, 1).to_i
       )
     end
 

@@ -197,7 +197,6 @@ module OpenRouter
           error_body = JSON.parse(response.body)
           error_message = error_body['error'] || error_body['message'] || response.message
           Rails.logger.error("OpenRouter Bad Request response: #{error_body.inspect}") if defined?(Rails)
-          STDERR.puts "OpenRouter Bad Request response: #{error_body.inspect}"
           raise ClientError.new("Client error: #{error_message}", status_code: 400)
         rescue JSON::ParserError
           raise ClientError.new("Client error: #{response.message}", status_code: 400)
@@ -229,9 +228,6 @@ module OpenRouter
       Rails.logger.error("JSON parse error: #{e.message}") if defined?(Rails)
       Rails.logger.error("Response body preview (first 1000 chars): #{response_body_preview}") if defined?(Rails)
       Rails.logger.error("Response body length: #{response_body_str&.length || response.body.to_s&.length || 'unknown'}") if defined?(Rails)
-      STDERR.puts "JSON parse error: #{e.message}"
-      STDERR.puts "Response body preview (first 1000 chars): #{response_body_preview}"
-      STDERR.puts "Response body length: #{response_body_str&.length || response.body.to_s&.length || 'unknown'}"
       raise ResponseParsingError, "Failed to parse response: #{e.message}"
     end
 

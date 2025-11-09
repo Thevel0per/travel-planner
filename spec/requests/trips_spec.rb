@@ -434,8 +434,7 @@ RSpec.describe 'Trips', type: :request do
           expect(json['trip']).to have_key('updated_at')
         end
 
-        # Note: View template will be implemented in a future session
-        xit 'renders show page for HTML requests' do
+        it 'renders show page for HTML requests' do
           get trip_path(trip)
           expect(response).to have_http_status(:ok)
         end
