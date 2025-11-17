@@ -2,3 +2,6 @@
 log/
 /app/assets/builds/**
 .DS_Store
+
+# SimpleCov coverage reports
+/coverage/

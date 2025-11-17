@@ -1,6 +1,21 @@
 # This file is copied to spec/ when you run 'rails generate rspec:install'
 require 'spec_helper'
 ENV['RAILS_ENV'] ||= 'test'
+
+# SimpleCov must be required before loading the application
+require 'simplecov'
+SimpleCov.start 'rails' do
+  add_filter '/spec/'
+  add_filter '/config/'
+  add_filter '/vendor/'
+
+  add_group 'Models', 'app/models'
+  add_group 'Controllers', 'app/controllers'
+  add_group 'Services', 'app/services'
+  add_group 'Jobs', 'app/jobs'
+  add_group 'Types', 'app/types'
+end
+
 require_relative '../config/environment'
 # Prevent database truncation if the environment is production
 abort("The Rails environment is running in production mode!") if Rails.env.production?
@@ -8,6 +23,29 @@ abort("The Rails environment is running in production mode!") if Rails.env.produ
 # that will avoid rails generators crashing because migrations haven't been run yet
 # return unless Rails.env.test?
 require 'rspec/rails'
+require 'rspec/retry'
+
+# Capybara configuration for E2E tests
+require 'capybara/rails'
+require 'capybara/rspec'
+require 'capybara/cuprite'
+
+Capybara.register_driver(:cuprite) do |app|
+  Capybara::Cuprite::Driver.new(
+    app,
+    window_size: [ 1400, 1400 ],
+    browser_options: {
+      'no-sandbox' => nil,
+      'disable-dev-shm-usage' => nil
+    },
+    headless: !ENV['HEADFUL'],
+    js_errors: true
+  )
+end
+
+Capybara.default_driver = :rack_test
+Capybara.javascript_driver = :cuprite
+Capybara.default_max_wait_time = 5
 # Add additional requires below this line. Rails is not loaded until this point!
 
 # Requires supporting ruby files with custom matchers and macros, etc, in
@@ -52,6 +90,17 @@ RSpec.configure do |config|
   # Include Devise test helpers for request specs
   config.include Devise::Test::IntegrationHelpers, type: :request
 
+  # Include Capybara helpers for system specs
+  config.include Capybara::RSpecMatchers, type: :system
+
+  # Configure RSpec Retry for flaky tests (only in CI)
+  # Tests can be tagged with :retry to enable retries
+  if ENV['CI']
+    config.around(:each) do |example|
+      example.run_with_retry retry: 3
+    end
+  end
+
   # Configure shoulda-matchers
   Shoulda::Matchers.configure do |matchers_config|
     matchers_config.integrate do |with|
@@ -81,4 +130,12 @@ RSpec.configure do |config|
   config.filter_rails_from_backtrace!
   # arbitrary gems may also be filtered via:
   # config.filter_gems_from_backtrace("gem name")
+
+  # Screenshot capture on E2E test failures
+  config.after(:each, type: :system) do |example|
+    if example.exception
+      take_screenshot
+      take_screenshot(name: example.full_description.parameterize)
+    end
+  end
 end

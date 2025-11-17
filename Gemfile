@@ -67,6 +67,16 @@ group :development, :test do
   gem 'shoulda-matchers', '~> 6.0'
   gem 'webmock', '~> 3.23'
 
+  # E2E testing
+  gem 'capybara', '~> 3.40'
+  gem 'cuprite', '~> 0.17'
+
+  # Code coverage
+  gem 'simplecov', '~> 0.22.0', require: false
+
+  # Retry flaky tests
+  gem 'rspec-retry', '~> 0.6.2'
+
   # Sorbet static type checker
   gem 'sorbet'
   gem 'tapioca', require: false
