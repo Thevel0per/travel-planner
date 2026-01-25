@@ -1,7 +1,7 @@
 <%# Material Design Floating Action Button %>
 <%= link_to new_trip_path, 
     class: "!fixed !bottom-8 !right-8 flex items-center justify-center select-none font-sans font-bold text-center uppercase transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none w-14 h-14 rounded-full bg-blue-600 text-white shadow-lg shadow-blue-500/20 hover:shadow-xl hover:shadow-blue-500/40 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85] active:shadow-none z-50 group",
-    data: { ripple: "light" },
+    data: { ripple: "light", testid: "new-trip-fab" },
     "aria-label": "Create new trip",
     role: "button",
     title: "Create new trip" do %>

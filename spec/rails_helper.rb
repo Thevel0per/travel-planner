@@ -135,7 +135,6 @@ RSpec.configure do |config|
   config.after(:each, type: :system) do |example|
     if example.exception
       take_screenshot
-      take_screenshot(name: example.full_description.parameterize)
     end
   end
 end

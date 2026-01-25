@@ -5,3 +5,5 @@ log/
 
 # SimpleCov coverage reports
 /coverage/
+
+/tmp/capybara/
