@@ -24,7 +24,9 @@ module DTOs
     const :generated_plans_count, T.nilable(Integer), default: nil
 
     # Optional nested associations (included in show view)
-    const :notes, T.nilable(T::Array[DTOs::NoteDTO]), default: nil
+    # TODO: Temporarily commented out during DTO migration (Task 4)
+    # Will be restored when Trip is migrated (Task 6)
+    # const :notes, T.nilable(T::Array[DTOs::NoteDTO]), default: nil
     const :generated_plans, T.nilable(T::Array[DTOs::GeneratedPlanDTO]), default: nil
 
     sig { params(trip: Trip).returns(TripDTO) }
@@ -62,6 +64,8 @@ module DTOs
 
     sig { params(trip: Trip).returns(TripDTO) }
     def self.from_model_with_associations(trip)
+      # TODO: Temporarily disabled notes serialization during DTO migration (Task 4)
+      # Will be restored when Trip is migrated (Task 6)
       new(
         id: trip.id,
         name: trip.name,
@@ -71,7 +75,7 @@ module DTOs
         number_of_people: trip.number_of_people,
         created_at: trip.created_at.iso8601,
         updated_at: trip.updated_at.iso8601,
-        notes: trip.notes.map { |note| DTOs::NoteDTO.from_model(note) },
+        # notes: trip.notes.map { |note| DTOs::NoteDTO.from_model(note) },
         generated_plans: trip.generated_plans.map { |plan| DTOs::GeneratedPlanDTO.from_model(plan) }
       )
     end

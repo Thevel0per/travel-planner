@@ -14,9 +14,7 @@ class Trips::NotesController < ApplicationController
   # Returns Turbo Stream response for seamless updates
   sig { void }
   def create
-    permitted_params = params.require(:note).permit(:content).to_h
-    command = Commands::NoteCreateCommand.from_params(permitted_params)
-    @note = @trip.notes.build(command.to_model_attributes)
+    @note = @trip.notes.build(note_params)
 
     if @note.save
       respond_to do |format|
@@ -24,16 +22,14 @@ class Trips::NotesController < ApplicationController
           flash.now[:notice] = 'Note added successfully'
         end
         format.json do
-          dto = DTOs::NoteDTO.from_model(@note)
-          render json: { note: dto.serialize }, status: :created
+          render json: { note: NoteSerializer.render_as_hash(@note) }, status: :created
         end
       end
     else
       respond_to do |format|
         format.turbo_stream { render :create, status: :unprocessable_content }
         format.json do
-          error_dto = DTOs::ErrorResponseDTO.from_model_errors(@note)
-          render json: error_dto.serialize, status: :unprocessable_content
+          render json: ErrorSerializer.render_model_errors(@note), status: :unprocessable_content
         end
       end
     end
@@ -44,18 +40,13 @@ class Trips::NotesController < ApplicationController
   # Returns updated note data in JSON or Turbo Stream format
   sig { void }
   def update
-    permitted_params = params.fetch(:note, {}).permit(:content).to_h
-    command = Commands::NoteUpdateCommand.from_params(permitted_params)
-    attributes = command.to_model_attributes
-
-    if @note.update(attributes)
+    if @note.update(note_params)
       respond_to do |format|
         format.turbo_stream do
           flash.now[:notice] = 'Note updated successfully'
         end
         format.json do
-          dto = DTOs::NoteDTO.from_model(@note)
-          render json: { note: dto.serialize }, status: :ok
+          render json: { note: NoteSerializer.render_as_hash(@note) }, status: :ok
         end
         format.html do
           flash[:notice] = 'Note updated successfully'
@@ -66,8 +57,7 @@ class Trips::NotesController < ApplicationController
       respond_to do |format|
         format.turbo_stream { render :update, status: :unprocessable_content }
         format.json do
-          error_dto = DTOs::ErrorResponseDTO.from_model_errors(@note)
-          render json: error_dto.serialize, status: :unprocessable_content
+          render json: ErrorSerializer.render_model_errors(@note), status: :unprocessable_content
         end
         format.html do
           flash[:alert] = format_errors_for_flash(@note.errors.to_hash)
@@ -99,8 +89,7 @@ class Trips::NotesController < ApplicationController
       respond_to do |format|
         format.turbo_stream { render :destroy, status: :unprocessable_content }
         format.json do
-          error_dto = DTOs::ErrorResponseDTO.single_error('Failed to delete note')
-          render json: error_dto.serialize, status: :unprocessable_content
+          render json: ErrorSerializer.render_error('Failed to delete note'), status: :unprocessable_content
         end
         format.html do
           flash[:alert] = 'Failed to delete note'
@@ -120,5 +109,11 @@ class Trips::NotesController < ApplicationController
   sig { void }
   def set_note
     @note = @trip.notes.find(params[:id])
+  end
+
+  # Strong Parameters for Note
+  sig { returns(ActionController::Parameters) }
+  def note_params
+    params.require(:note).permit(:content)
   end
 end
