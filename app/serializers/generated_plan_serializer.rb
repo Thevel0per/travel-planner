@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
 # Serializer for GeneratedPlan resources
-# Basic implementation for Trip associations
-# Will be fully implemented in Task 7
+# Supports both list view (without content) and detail view (with full content)
 class GeneratedPlanSerializer < ApplicationSerializer
   identifier :id
 
@@ -17,6 +16,20 @@ class GeneratedPlanSerializer < ApplicationSerializer
     plan.updated_at.iso8601
   end
 
-  # Content field - only include if present (for completed plans)
-  field :content, if: ->(_, plan, _) { plan.content.present? }
+  # Content field - only include for detail view when status is 'completed'
+  # Uses GeneratedPlanContentSerializer to handle nested JSON structure
+  field :content, if: ->(_, plan, options) { options[:detail] && plan.status == 'completed' && plan.content.present? } do |plan|
+    parsed_content = GeneratedPlanContentSerializer.parse_content(plan.content)
+    GeneratedPlanContentSerializer.render_as_hash(parsed_content) if parsed_content
+  end
+
+  # Class method for list view (without content)
+  def self.for_list(plan)
+    render_as_hash(plan, detail: false)
+  end
+
+  # Class method for detail view (with content)
+  def self.for_detail(plan)
+    render_as_hash(plan, detail: true)
+  end
 end

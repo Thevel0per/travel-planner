@@ -13,14 +13,13 @@ class Trips::GeneratedPlansController < ApplicationController
   # Returns 200 OK with full plan details (HTML or JSON)
   sig { void }
   def show
-    @generated_plan_model = @trip.generated_plans.find(params[:id])
-    @generated_plan = DTOs::GeneratedPlanDetailDTO.from_model(@generated_plan_model)
+    @generated_plan = @trip.generated_plans.find(params[:id])
 
     respond_to do |format|
       format.html # Renders show.html.erb
       format.json do
         render json: {
-          generated_plan: @generated_plan.serialize
+          generated_plan: GeneratedPlanSerializer.for_detail(@generated_plan)
         }, status: :ok
       end
     end
@@ -29,8 +28,7 @@ class Trips::GeneratedPlansController < ApplicationController
     respond_to do |format|
       format.html { render :not_found, status: :not_found }
       format.json do
-        error_dto = DTOs::ErrorResponseDTO.single_error('Generated plan not found')
-        render json: error_dto.serialize, status: :not_found
+        render json: { error: 'Generated plan not found' }, status: :not_found
       end
     end
   end
@@ -40,23 +38,19 @@ class Trips::GeneratedPlansController < ApplicationController
   # Returns 200 OK with updated plan details (HTML Turbo Stream or JSON)
   sig { void }
   def update
-    @generated_plan_model = @trip.generated_plans.find(params[:id])
+    @generated_plan = @trip.generated_plans.find(params[:id])
 
-    # Parse command from params
-    permitted_params = params.require(:generated_plan).permit(:rating).to_h
-    command = Commands::GeneratedPlanUpdateCommand.from_params(permitted_params)
+    # Use Strong Parameters directly
+    update_params = params.require(:generated_plan).permit(:rating)
 
     # Update plan
-    @generated_plan_model.update!(command.to_model_attributes)
-
-    # Transform to DTO for response
-    @generated_plan = DTOs::GeneratedPlanDetailDTO.from_model(@generated_plan_model)
+    @generated_plan.update!(update_params)
 
     respond_to do |format|
       format.turbo_stream # Renders update.turbo_stream.erb
       format.json do
         render json: {
-          generated_plan: @generated_plan.serialize,
+          generated_plan: GeneratedPlanSerializer.for_detail(@generated_plan),
           message: 'Rating saved successfully'
         }, status: :ok
       end
@@ -64,13 +58,11 @@ class Trips::GeneratedPlansController < ApplicationController
   rescue ActiveRecord::RecordInvalid => e
     # Handle validation errors
     Rails.logger.warn("Validation error updating generated plan: #{e.message}")
-    @generated_plan = DTOs::GeneratedPlanDetailDTO.from_model(@generated_plan_model)
 
     respond_to do |format|
       format.turbo_stream { render :update, status: :unprocessable_content }
       format.json do
-        error_dto = DTOs::ErrorResponseDTO.from_model_errors(@generated_plan_model)
-        render json: error_dto.serialize, status: :unprocessable_content
+        render json: { errors: @generated_plan.errors.messages }, status: :unprocessable_content
       end
     end
   rescue ActiveRecord::RecordNotFound => e
@@ -78,8 +70,7 @@ class Trips::GeneratedPlansController < ApplicationController
     respond_to do |format|
       format.turbo_stream { render :update, status: :not_found }
       format.json do
-        error_dto = DTOs::ErrorResponseDTO.single_error('Generated plan not found')
-        render json: error_dto.serialize, status: :not_found
+        render json: { error: 'Generated plan not found' }, status: :not_found
       end
     end
   end
@@ -92,11 +83,12 @@ class Trips::GeneratedPlansController < ApplicationController
   def create
     # Check if user preferences exist (required for generation)
     unless current_user.user_preference
-      error_dto = DTOs::ErrorResponseDTO.single_error(
-        'Cannot generate plan without user preferences. Please set your preferences first.'
-      )
       respond_to do |format|
-        format.json { render json: error_dto.serialize, status: :unprocessable_content }
+        format.json do
+          render json: {
+            error: 'Cannot generate plan without user preferences. Please set your preferences first.'
+          }, status: :unprocessable_content
+        end
         format.turbo_stream { render :create, status: :unprocessable_content }
       end
       return
@@ -117,9 +109,8 @@ class Trips::GeneratedPlansController < ApplicationController
     respond_to do |format|
       format.turbo_stream { render status: :accepted }
       format.json do
-        dto = DTOs::GeneratedPlanDTO.from_model(@generated_plan)
         render json: {
-          generated_plan: dto.serialize,
+          generated_plan: GeneratedPlanSerializer.for_list(@generated_plan),
           message: 'Plan generation initiated. Please check back shortly.'
         }, status: :accepted
       end
@@ -133,11 +124,10 @@ class Trips::GeneratedPlansController < ApplicationController
       format.turbo_stream { render :create, status: :unprocessable_content }
       format.json do
         if @generated_plan
-          error_dto = DTOs::ErrorResponseDTO.from_model_errors(@generated_plan)
+          render json: { errors: @generated_plan.errors.messages }, status: :unprocessable_content
         else
-          error_dto = DTOs::ErrorResponseDTO.single_error('Invalid generated plan parameters')
+          render json: { error: 'Invalid generated plan parameters' }, status: :unprocessable_content
         end
-        render json: error_dto.serialize, status: :unprocessable_content
       end
     end
   rescue ActiveJob::SerializationError => e
@@ -148,8 +138,7 @@ class Trips::GeneratedPlansController < ApplicationController
     respond_to do |format|
       format.turbo_stream { render :create, status: :unprocessable_content }
       format.json do
-        error_dto = DTOs::ErrorResponseDTO.single_error('An unexpected error occurred')
-        render json: error_dto.serialize, status: :internal_server_error
+        render json: { error: 'An unexpected error occurred' }, status: :internal_server_error
       end
     end
   rescue StandardError => e
@@ -161,8 +150,7 @@ class Trips::GeneratedPlansController < ApplicationController
     respond_to do |format|
       format.turbo_stream { render :create, status: :unprocessable_content }
       format.json do
-        error_dto = DTOs::ErrorResponseDTO.single_error('An unexpected error occurred')
-        render json: error_dto.serialize, status: :internal_server_error
+        render json: { error: 'An unexpected error occurred' }, status: :internal_server_error
       end
     end
   end
