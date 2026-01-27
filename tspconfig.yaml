@@ -1,0 +1,13 @@
+emit:
+  - "@typespec/openapi3"
+  - "@typespec/json-schema"
+
+options:
+  "@typespec/openapi3":
+    "output-file": "{project-root}/public/api/openapi.yaml"
+  "@typespec/json-schema":
+    "emitter-output-dir": "{project-root}/public/api/schemas"
+
+linter:
+  extends:
+    - "@typespec/http/all"

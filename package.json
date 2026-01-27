@@ -1,0 +1,19 @@
+{
+  "name": "travel-planner-api-specs",
+  "version": "1.0.0",
+  "description": "TypeSpec API specifications for Travel Planner",
+  "private": true,
+  "scripts": {
+    "tsp:watch": "tsp compile tsp --watch",
+    "tsp:compile": "tsp compile tsp",
+    "tsp:format": "tsp format tsp/**/*.tsp",
+    "tsp:install": "npm install"
+  },
+  "devDependencies": {
+    "@typespec/compiler": "^0.60.0",
+    "@typespec/http": "^0.60.0",
+    "@typespec/rest": "^0.60.0",
+    "@typespec/openapi3": "^0.60.0",
+    "@typespec/json-schema": "^0.60.0"
+  }
+}
