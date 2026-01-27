@@ -19,10 +19,9 @@ class PreferencesController < ApplicationController
       Rails.logger.warn("Preferences not found for user_id: #{current_user.id}")
       respond_to do |format|
         format.json do
-          error_dto = DTOs::ErrorResponseDTO.single_error(
+          render json: ErrorSerializer.render_error(
             'Preferences not found. Please create your preferences.'
-          )
-          render json: error_dto.serialize, status: :not_found
+          ), status: :not_found
         end
         format.html do
           flash[:alert] = 'Preferences not found. Please create your preferences.'
@@ -35,8 +34,7 @@ class PreferencesController < ApplicationController
     # Success: Transform and render
     respond_to do |format|
       format.json do
-        dto = DTOs::UserPreferencesDTO.from_model(@user_preferences)
-        render json: { preferences: dto.serialize }, status: :ok
+        render json: { preferences: UserPreferencesSerializer.render_as_hash(@user_preferences) }, status: :ok
       end
       format.html do
         # HTML view not implemented yet per requirements
@@ -50,25 +48,15 @@ class PreferencesController < ApplicationController
   # Returns 200 OK with preferences data on success, 422 on validation errors
   sig { void }
   def update
-    # Convert activities array to comma-separated string if present
-    permitted_params = params.fetch(:preferences, {}).permit(:budget, :accommodation, :activities, :eating_habits).to_h
-    processed_params = process_preferences_params({ preferences: permitted_params })
-
-    # Parse request parameters using command object
-    command = Commands::PreferencesUpdateCommand.from_params(processed_params)
-    attributes = command.to_model_attributes(processed_params)
-
     # Find or initialize user preferences (upsert pattern)
     @user_preferences = current_user.user_preference || current_user.build_user_preference
-    @user_preferences.assign_attributes(attributes)
 
-    # Save (activates model validations)
-    if @user_preferences.save
-      # Success: Return 200 OK with preferences DTO
+    # Update with strong parameters
+    if @user_preferences.update(preferences_params)
+      # Success: Return 200 OK with preferences
       respond_to do |format|
         format.json do
-          dto = DTOs::UserPreferencesDTO.from_model(@user_preferences)
-          render json: { preferences: dto.serialize }, status: :ok
+          render json: { preferences: UserPreferencesSerializer.render_as_hash(@user_preferences) }, status: :ok
         end
         format.html do
           flash[:notice] = 'Preferences updated successfully'
@@ -79,8 +67,7 @@ class PreferencesController < ApplicationController
       # Validation failure: Return 422 Unprocessable Entity with error details
       respond_to do |format|
         format.json do
-          error_dto = DTOs::ErrorResponseDTO.from_model_errors(@user_preferences)
-          render json: error_dto.serialize, status: :unprocessable_content
+          render json: ErrorSerializer.render_model_errors(@user_preferences), status: :unprocessable_content
         end
         format.html do
           flash[:alert] = 'Failed to update preferences'
@@ -92,20 +79,26 @@ class PreferencesController < ApplicationController
 
   private
 
-  # Converts activities array to comma-separated string if present
-  # Handles both array format (from form checkboxes) and string format (from API)
-  sig { params(params: T::Hash[T.untyped, T.untyped]).returns(T::Hash[T.untyped, T.untyped]) }
-  def process_preferences_params(params)
-    processed = params.dup
-    preferences_params = processed[:preferences] || processed
-
+  # Strong Parameters for Preferences
+  # Handles conversion of activities array to comma-separated string
+  # All fields are optional, so empty hash is allowed (no-op update)
+  sig { returns(Hash) }
+  def preferences_params
+    # Fetch preferences, default to empty hash if not present
+    prefs = params.fetch(:preferences, {})
+    permitted = prefs.permit(:budget, :accommodation, :activities, :eating_habits)
+    result = permitted.to_h
+    
     # Convert activities array to comma-separated string if it's an array
-    if preferences_params.is_a?(Hash) && preferences_params[:activities].is_a?(Array)
+    # This handles form checkboxes that submit as arrays
+    if result[:activities].is_a?(Array)
       # Filter out empty strings (from hidden field)
-      activities_array = preferences_params[:activities].reject(&:blank?)
-      preferences_params[:activities] = activities_array.any? ? activities_array.join(',') : nil
+      activities_array = result[:activities].reject(&:blank?)
+      result[:activities] = activities_array.any? ? activities_array.join(',') : nil
     end
-
-    processed
+    
+    # Convert empty strings to nil for optional fields
+    # This allows clearing preferences by submitting empty values
+    result.transform_values { |v| v.presence }
   end
 end

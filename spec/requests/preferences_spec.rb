@@ -113,8 +113,8 @@ RSpec.describe 'Preferences', type: :request do
           get preferences_path, as: :json
           json = JSON.parse(response.body)
 
-          expect(json).to have_key('error')
-          expect(json['error']).to eq('Preferences not found. Please create your preferences.')
+          expect(json).to have_key('errors')
+          expect(json['errors']['base']).to include('Preferences not found. Please create your preferences.')
         end
 
         it 'redirects to root with flash message for HTML requests' do
@@ -294,7 +294,8 @@ RSpec.describe 'Preferences', type: :request do
           original_updated_at = preferences.updated_at
           sleep(1) # Ensure timestamp difference
 
-          put preferences_path, params: {}, as: :json
+          # Rails Strong Parameters requires the preferences key
+          put preferences_path, params: { preferences: {} }, as: :json
 
           expect(response).to have_http_status(:ok)
           # Preferences should still exist with same values
