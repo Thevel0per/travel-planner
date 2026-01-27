@@ -48,6 +48,9 @@ gem 'sorbet-runtime'
 # Pagination
 gem 'pagy', '~> 9.0'
 
+# JSON Serialization
+gem 'blueprinter', '~> 1.2'
+
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
 # gem "image_processing", "~> 1.2"
 
@@ -76,6 +79,9 @@ group :development, :test do
 
   # Retry flaky tests
   gem 'rspec-retry', '~> 0.6.2'
+
+  # JSON Schema validation for testing
+  gem 'json_schemer', '~> 2.3'
 
   # Sorbet static type checker
   gem 'sorbet'
