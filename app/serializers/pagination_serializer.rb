@@ -11,13 +11,13 @@ class PaginationSerializer < Blueprinter::Base
   class << self
     # Render pagination metadata from Pagy object
     # @param pagy [Pagy] Pagy pagination object
-    # @return [String] JSON string
+    # @return [Hash] Hash with pagination metadata
     def from_pagy(pagy)
       metadata = {
         current_page: pagy.page,
         total_pages: pagy.pages,
         total_count: pagy.count,
-        per_page: pagy.items
+        per_page: pagy.limit
       }
       render_as_hash(metadata)
     end

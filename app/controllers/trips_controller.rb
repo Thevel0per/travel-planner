@@ -26,13 +26,10 @@ class TripsController < ApplicationController
     respond_to do |format|
       format.html { render :index }
       format.json do
-        render_paginated_json(
-          @trips,
-          dto_class: DTOs::TripDTO,
-          pagy: @pagy,
-          transform_method: :from_model_with_counts,
-          key: :trips
-        )
+        render json: {
+          trips: TripSerializer.render_as_hash(@trips, include_counts: true),
+          meta: PaginationSerializer.from_pagy(@pagy)
+        }, status: :ok
       end
     end
   end
@@ -57,8 +54,7 @@ class TripsController < ApplicationController
     # Respond based on requested format
     respond_to do |format|
       format.json do
-        dto = DTOs::TripDTO.from_model_with_associations(@trip)
-        render json: { trip: dto.serialize }, status: :ok
+        render json: { trip: TripSerializer.render_as_hash(@trip, include_associations: true) }, status: :ok
       end
       format.html { render :show }
     end
@@ -70,21 +66,15 @@ class TripsController < ApplicationController
   # Returns 201 Created with trip data on success, 422 with validation errors on failure
   sig { void }
   def create
-    # Extract parameters using command object
-    command = Commands::TripCreateCommand.from_params(
-      params.require(:trip).permit(:name, :destination, :start_date, :end_date, :number_of_people).to_h
-    )
-
-    # Create trip using service object
-    service = Trips::Create.new(user: current_user, command:)
+    # Create trip using service object with strong parameters
+    service = Trips::Create.new(user: current_user, attributes: trip_params)
     trip = service.call
 
     if trip.persisted?
-      # Success: Return 201 Created with trip DTO
+      # Success: Return 201 Created with trip
       respond_to do |format|
         format.json do
-          dto = DTOs::TripDTO.from_model(trip)
-          render json: { trip: dto.serialize }, status: :created
+          render json: { trip: TripSerializer.render_as_hash(trip) }, status: :created
         end
         format.html do
           flash[:notice] = 'Trip created successfully'
@@ -96,8 +86,7 @@ class TripsController < ApplicationController
       @trip = trip
       respond_to do |format|
         format.json do
-          error_dto = DTOs::ErrorResponseDTO.from_model_errors(trip)
-          render json: error_dto.serialize, status: :unprocessable_content
+          render json: ErrorSerializer.render_model_errors(trip), status: :unprocessable_content
         end
         format.html do
           render :new, status: :unprocessable_content
@@ -112,20 +101,13 @@ class TripsController < ApplicationController
   # Returns 200 OK with updated trip data on success, 422 with validation errors on failure
   sig { void }
   def update
-    # Parse request parameters using command object
-    command = Commands::TripUpdateCommand.from_params(
-      params.require(:trip).permit(:name, :destination, :start_date, :end_date, :number_of_people).to_h
-    )
-    attributes = command.to_model_attributes
-
-    # Update trip with attributes
+    # Update trip with strong parameters
     # ActiveRecord will run model validations automatically
-    if @trip.update(attributes)
-      # Success: Return 200 OK with updated trip DTO
+    if @trip.update(trip_params)
+      # Success: Return 200 OK with updated trip
       respond_to do |format|
         format.json do
-          dto = DTOs::TripDTO.from_model(@trip)
-          render json: { trip: dto.serialize }, status: :ok
+          render json: { trip: TripSerializer.render_as_hash(@trip) }, status: :ok
         end
         format.html do
           flash[:notice] = 'Trip updated successfully'
@@ -136,8 +118,7 @@ class TripsController < ApplicationController
       # Validation failure: Return 422 Unprocessable Entity with error details
       respond_to do |format|
         format.json do
-          error_dto = DTOs::ErrorResponseDTO.from_model_errors(@trip)
-          render json: error_dto.serialize, status: :unprocessable_content
+          render json: ErrorSerializer.render_model_errors(@trip), status: :unprocessable_content
         end
         format.html do
           render :edit, status: :unprocessable_content
@@ -174,5 +155,11 @@ class TripsController < ApplicationController
     else
       @trip = current_user.trips.find(params[:id])
     end
+  end
+
+  # Strong Parameters for Trip
+  sig { returns(ActionController::Parameters) }
+  def trip_params
+    params.require(:trip).permit(:name, :destination, :start_date, :end_date, :number_of_people)
   end
 end

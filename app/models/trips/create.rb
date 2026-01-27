@@ -10,13 +10,13 @@ module Trips
     sig { returns(User) }
     attr_reader :user
 
-    sig { returns(Commands::TripCreateCommand) }
-    attr_reader :command
+    sig { returns(T::Hash[Symbol, T.untyped]) }
+    attr_reader :attributes
 
-    sig { params(user: User, command: Commands::TripCreateCommand).void }
-    def initialize(user:, command:)
+    sig { params(user: User, attributes: T::Hash[Symbol, T.untyped]).void }
+    def initialize(user:, attributes:)
       @user = user
-      @command = command
+      @attributes = attributes
     end
 
     # Creates a new trip for the user
@@ -24,14 +24,8 @@ module Trips
     # Check trip.persisted? or trip.errors.any? to determine success/failure
     sig { returns(Trip) }
     def call
-      # Convert command to model attributes (dates are parsed from strings)
-      model_attributes = command.to_model_attributes
-
-      # Set user_id from authenticated session (security: prevent user spoofing)
-      model_attributes[:user_id] = user.id
-
       # Build trip instance from attributes
-      trip = user.trips.new(model_attributes)
+      trip = user.trips.new(attributes)
 
       # Attempt to save (triggers model validations)
       trip.save
