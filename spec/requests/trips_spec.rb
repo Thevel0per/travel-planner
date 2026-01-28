@@ -155,7 +155,7 @@ RSpec.describe 'Trips', type: :request do
           expect(response).to have_http_status(:bad_request)
 
           json = JSON.parse(response.body)
-          expect(json['error']).to include('Page number exceeds')
+          expect(json['errors']['base'].first).to include('Page number exceeds')
         end
       end
 
@@ -542,8 +542,8 @@ RSpec.describe 'Trips', type: :request do
           get trip_path(999_999), as: :json
           json = JSON.parse(response.body)
 
-          expect(json).to have_key('error')
-          expect(json['error']).to eq('Resource not found')
+          expect(json).to have_key('errors')
+          expect(json['errors']['base']).to include('Resource not found')
         end
 
         it 'redirects to root with flash message for HTML requests' do
@@ -565,7 +565,7 @@ RSpec.describe 'Trips', type: :request do
           get trip_path(other_user_trip), as: :json
           json = JSON.parse(response.body)
 
-          expect(json['error']).to eq('Resource not found')
+          expect(json['errors']['base']).to include('Resource not found')
           # Should not reveal that the trip exists but belongs to another user
         end
       end
@@ -741,8 +741,8 @@ RSpec.describe 'Trips', type: :request do
           put trip_path(999_999), params: { trip: { name: 'Updated' } }, as: :json
           json = JSON.parse(response.body)
 
-          expect(json).to have_key('error')
-          expect(json['error']).to eq('Resource not found')
+          expect(json).to have_key('errors')
+          expect(json['errors']['base']).to include('Resource not found')
         end
       end
 
@@ -758,7 +758,7 @@ RSpec.describe 'Trips', type: :request do
           put trip_path(other_user_trip), params: { trip: { name: 'Hacked' } }, as: :json
           json = JSON.parse(response.body)
 
-          expect(json['error']).to eq('Resource not found')
+          expect(json['errors']['base']).to include('Resource not found')
         end
       end
 
@@ -844,8 +844,8 @@ RSpec.describe 'Trips', type: :request do
           delete trip_path(999_999), as: :json
           json = JSON.parse(response.body)
 
-          expect(json).to have_key('error')
-          expect(json['error']).to eq('Resource not found')
+          expect(json).to have_key('errors')
+          expect(json['errors']['base']).to include('Resource not found')
         end
 
         it 'redirects to root with flash message for HTML requests' do
@@ -867,7 +867,7 @@ RSpec.describe 'Trips', type: :request do
           delete trip_path(other_user_trip), as: :json
           json = JSON.parse(response.body)
 
-          expect(json['error']).to eq('Resource not found')
+          expect(json['errors']['base']).to include('Resource not found')
           # Should not reveal that the trip exists but belongs to another user
         end
 

@@ -158,8 +158,8 @@ RSpec.describe 'Trips::Notes', type: :request do
           put trip_note_path(999_999, note), params: { note: { content: 'Updated' } }, as: :json
           json = JSON.parse(response.body)
 
-          expect(json).to have_key('error')
-          expect(json['error']).to eq('Resource not found')
+          expect(json).to have_key('errors')
+          expect(json['errors']['base']).to include('Resource not found')
         end
 
         it 'redirects to root with flash message for HTML requests' do
@@ -179,8 +179,8 @@ RSpec.describe 'Trips::Notes', type: :request do
           put trip_note_path(trip, 999_999), params: { note: { content: 'Updated' } }, as: :json
           json = JSON.parse(response.body)
 
-          expect(json).to have_key('error')
-          expect(json['error']).to eq('Resource not found')
+          expect(json).to have_key('errors')
+          expect(json['errors']['base']).to include('Resource not found')
         end
       end
 
@@ -200,7 +200,7 @@ RSpec.describe 'Trips::Notes', type: :request do
               as: :json
           json = JSON.parse(response.body)
 
-          expect(json['error']).to eq('Resource not found')
+          expect(json['errors']['base']).to include('Resource not found')
         end
 
         it 'does not update note belonging to another user' do

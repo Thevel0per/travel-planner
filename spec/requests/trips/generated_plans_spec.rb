@@ -36,8 +36,8 @@ RSpec.describe 'Trips::GeneratedPlans', type: :request do
           post trip_generated_plans_path(999_999), as: :json
           json = JSON.parse(response.body)
 
-          expect(json).to have_key('error')
-          expect(json['error']).to eq('Resource not found')
+          expect(json).to have_key('errors')
+          expect(json['errors']['base']).to include('Resource not found')
         end
       end
 
@@ -51,7 +51,7 @@ RSpec.describe 'Trips::GeneratedPlans', type: :request do
           post trip_generated_plans_path(other_user_trip), as: :json
           json = JSON.parse(response.body)
 
-          expect(json['error']).to eq('Resource not found')
+          expect(json['errors']['base']).to include('Resource not found')
         end
       end
 
@@ -173,8 +173,8 @@ RSpec.describe 'Trips::GeneratedPlans', type: :request do
 
         context 'error handling' do
           it 'handles validation errors gracefully' do
-            # Force a validation error by stubbing the association's create! method
-            invalid_plan = GeneratedPlan.new(trip:, status: 'invalid_status', content: '{}')
+            # Force a validation error by creating a completed plan without content
+            invalid_plan = GeneratedPlan.new(trip:, status: 'completed', content: nil)
             invalid_plan.valid? # Trigger validations to populate errors
 
             # Stub the association proxy's create! method
