@@ -13,14 +13,14 @@ class PreferenceOptionsSerializer < ApplicationSerializer
   field :eating_habits
 
   class << self
-    # Returns all available preference options from enums
+    # Returns all available preference options from UserPreference model
     # @return [Hash] Hash containing all preference options
     def all_options
       {
-        budget: Enums::Budget.string_values,
-        accommodation: Enums::Accommodation.string_values,
-        activities: Enums::Activity.string_values,
-        eating_habits: Enums::EatingHabit.string_values
+        budget: UserPreference::BUDGETS,
+        accommodation: UserPreference::ACCOMMODATIONS,
+        activities: UserPreference::ACTIVITIES,
+        eating_habits: UserPreference::EATING_HABITS
       }
     end
   end

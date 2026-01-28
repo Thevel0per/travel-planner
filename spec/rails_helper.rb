@@ -13,7 +13,7 @@ SimpleCov.start 'rails' do
   add_group 'Controllers', 'app/controllers'
   add_group 'Services', 'app/services'
   add_group 'Jobs', 'app/jobs'
-  add_group 'Types', 'app/types'
+  add_group 'Serializers', 'app/serializers'
 end
 
 require_relative '../config/environment'

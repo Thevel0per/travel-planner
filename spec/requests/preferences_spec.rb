@@ -377,7 +377,7 @@ RSpec.describe 'Preferences', type: :request do
         end
 
         it 'accepts valid enum values' do
-          Enums::Budget.string_values.each do |budget|
+          UserPreference::BUDGETS.each do |budget|
             put preferences_path,
                 params: { preferences: { budget: } },
                 as: :json

@@ -63,21 +63,21 @@ module TravelPlanGeneration
       end
     end
 
-    sig { void }
-    def validate_user_preferences
-      # User preferences are optional but must be valid if present
-      if user_preferences.budget.present? && !Enums::Budget.string_values.include?(user_preferences.budget)
-        @errors << 'Invalid budget preference'
-      end
-
-      if user_preferences.accommodation.present? && !Enums::Accommodation.string_values.include?(user_preferences.accommodation)
-        @errors << 'Invalid accommodation preference'
-      end
-
-      if user_preferences.eating_habits.present? && !Enums::EatingHabit.string_values.include?(user_preferences.eating_habits)
-        @errors << 'Invalid eating habits preference'
-      end
+  sig { void }
+  def validate_user_preferences
+    # User preferences are optional but must be valid if present
+    if user_preferences.budget.present? && !UserPreference::BUDGETS.include?(user_preferences.budget)
+      @errors << 'Invalid budget preference'
     end
+
+    if user_preferences.accommodation.present? && !UserPreference::ACCOMMODATIONS.include?(user_preferences.accommodation)
+      @errors << 'Invalid accommodation preference'
+    end
+
+    if user_preferences.eating_habits.present? && !UserPreference::EATING_HABITS.include?(user_preferences.eating_habits)
+      @errors << 'Invalid eating habits preference'
+    end
+  end
 
     sig { void }
     def validate_notes

@@ -36,9 +36,7 @@ module TravelPlanner
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
 
-    # Add app/types and app/services to autoload paths
-    # Note: These directories are already autoloaded by default in Rails 7+
-    # but we explicitly add them here for clarity
+    # Note: All app subdirectories are automatically autoloaded in Rails 7+
 
     # Don't generate system test files.
     config.generators.system_tests = nil
