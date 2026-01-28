@@ -67,7 +67,7 @@ class TripsController < ApplicationController
   sig { void }
   def create
     # Create trip using service object with strong parameters
-    service = Trips::Create.new(user: current_user, attributes: trip_params)
+    service = Trips::Create.new(user: current_user, attributes: trip_params.to_h.symbolize_keys)
     trip = service.call
 
     if trip.persisted?
