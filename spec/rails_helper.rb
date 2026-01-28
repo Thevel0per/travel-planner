@@ -31,21 +31,44 @@ require 'capybara/rspec'
 require 'capybara/cuprite'
 
 Capybara.register_driver(:cuprite) do |app|
-  Capybara::Cuprite::Driver.new(
-    app,
+  options = {
     window_size: [ 1400, 1400 ],
-    browser_options: {
-      'no-sandbox' => nil,
-      'disable-dev-shm-usage' => nil
-    },
+    browser_options: {},
     headless: !ENV['HEADFUL'],
-    js_errors: true
-  )
+    js_errors: true,
+    # Performance optimizations
+    process_timeout: 30,
+    timeout: 30,
+    inspector: false
+  }
+
+  # CI-specific Chrome options
+  if ENV['CI']
+    options[:browser_options] = {
+      'no-sandbox' => nil,
+      'disable-dev-shm-usage' => nil,
+      'disable-gpu' => nil,
+      'disable-software-rasterizer' => nil,
+      'disable-web-security' => nil,
+      'disable-features' => 'VizDisplayCompositor',
+      'window-size' => '1920,1080'
+    }
+
+    # Explicitly set Chrome binary path if available from environment
+    options[:browser_path] = ENV['CHROME_PATH'] if ENV['CHROME_PATH']
+  end
+
+  Capybara::Cuprite::Driver.new(app, **options)
 end
 
 Capybara.default_driver = :rack_test
 Capybara.javascript_driver = :cuprite
-Capybara.default_max_wait_time = 5
+Capybara.default_max_wait_time = ENV['CI'] ? 10 : 5
+Capybara.server = :puma, { Silent: true } # Suppress Puma output in tests
+
+# Increase server timeout in CI
+Capybara.server_host = '127.0.0.1'
+Capybara.server_port = 3001 if ENV['CI']
 # Add additional requires below this line. Rails is not loaded until this point!
 
 # Requires supporting ruby files with custom matchers and macros, etc, in
@@ -79,6 +102,7 @@ RSpec.configure do |config|
   # If you're not using ActiveRecord, or you'd prefer not to run each of your
   # examples within a transaction, remove the following line or assign false
   # instead of true.
+  # System tests need database_cleaner instead of transactional fixtures
   config.use_transactional_fixtures = true
 
   # You can uncomment this line to turn off ActiveRecord support entirely.
@@ -94,9 +118,10 @@ RSpec.configure do |config|
   config.include Capybara::RSpecMatchers, type: :system
 
   # Configure RSpec Retry for flaky tests (only in CI)
-  # Tests can be tagged with :retry to enable retries
+  # Only retry tests explicitly tagged with :retry
+  # Usage: it 'flaky test', :retry do ... end
   if ENV['CI']
-    config.around(:each) do |example|
+    config.around(:each, :retry) do |example|
       example.run_with_retry retry: 3
     end
   end
@@ -131,9 +156,9 @@ RSpec.configure do |config|
   # arbitrary gems may also be filtered via:
   # config.filter_gems_from_backtrace("gem name")
 
-  # Screenshot capture on E2E test failures
+  # Screenshot capture on E2E test failures (only in CI)
   config.after(:each, type: :system) do |example|
-    if example.exception
+    if example.exception && ENV['CI']
       take_screenshot
     end
   end

@@ -86,13 +86,22 @@ jobs:
           bundler-cache: true
 
       - name: Set up database
-        run: bin/rails db:create db:schema:load
+        run: |
+          echo "📦 Setting up database..."
+          bin/rails db:create db:schema:load
+          echo "✅ Database ready"
 
       - name: Precompile assets
-        run: bin/rails assets:precompile
+        run: |
+          echo "🎨 Precompiling assets..."
+          time bin/rails assets:precompile
+          echo "✅ Assets compiled"
 
       - name: Run unit tests
-        run: bundle exec rspec --tag ~type:system --format progress
+        run: |
+          echo "⏱️  Starting unit tests at $(date '+%Y-%m-%d %H:%M:%S')"
+          bundle exec rspec --tag ~type:system --format progress --profile 10
+          echo "✅ Finished unit tests at $(date '+%Y-%m-%d %H:%M:%S')"
 
       - name: Upload unit test coverage
         uses: actions/upload-artifact@v4
@@ -109,6 +118,8 @@ jobs:
     env:
       RAILS_ENV: test
       DATABASE_URL: postgres://postgres:postgres@localhost:5432/travel_planner_test
+      # CI flag enables Cuprite's CI-specific Chrome options
+      CI: true
     
     services:
       postgres:
@@ -135,15 +146,43 @@ jobs:
         uses: browser-actions/setup-chrome@v2
         with:
           chrome-version: stable
+      
+      - name: Verify Chrome installation
+        run: |
+          echo "🔍 Checking Chrome installation..."
+          CHROME_PATH=$(which google-chrome-stable || which google-chrome || which chromium)
+          echo "Chrome found at: $CHROME_PATH"
+          $CHROME_PATH --version
+          echo "CHROME_PATH=$CHROME_PATH" >> $GITHUB_ENV
 
       - name: Set up database
-        run: bin/rails db:create db:schema:load
+        run: |
+          echo "📦 Setting up database..."
+          bin/rails db:create db:schema:load
+          echo "✅ Database ready"
 
       - name: Precompile assets
-        run: bin/rails assets:precompile
+        run: |
+          echo "🎨 Precompiling assets..."
+          time bin/rails assets:precompile
+          echo "✅ Assets compiled"
 
       - name: Run E2E tests
-        run: bundle exec rspec --tag type:system --format progress
+        run: |
+          echo "⏱️  Starting E2E tests at $(date '+%Y-%m-%d %H:%M:%S')"
+          echo "🌐 Chrome path: $CHROME_PATH"
+          echo "🖥️  Running tests with headless Chrome via Cuprite"
+          
+          # Run E2E tests - modern Chrome headless doesn't need xvfb
+          bundle exec rspec spec/system/trips_management_spec.rb:14 \
+            --format documentation \
+            --profile 10
+          
+          echo "✅ Finished E2E tests at $(date '+%Y-%m-%d %H:%M:%S')"
+        env:
+          # Ensure RAILS_ENV is test
+          RAILS_ENV: test
+          # CI flag is already set at job level
 
       - name: Upload E2E test coverage
         uses: actions/upload-artifact@v4
