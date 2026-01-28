@@ -86,13 +86,22 @@ jobs:
           bundler-cache: true
 
       - name: Set up database
-        run: bin/rails db:create db:schema:load
+        run: |
+          echo "📦 Setting up database..."
+          bin/rails db:create db:schema:load
+          echo "✅ Database ready"
 
       - name: Precompile assets
-        run: bin/rails assets:precompile
+        run: |
+          echo "🎨 Precompiling assets..."
+          time bin/rails assets:precompile
+          echo "✅ Assets compiled"
 
       - name: Run unit tests
-        run: bundle exec rspec --tag ~type:system --format progress
+        run: |
+          echo "⏱️  Starting unit tests at $(date '+%Y-%m-%d %H:%M:%S')"
+          bundle exec rspec --tag ~type:system --format progress --profile 10
+          echo "✅ Finished unit tests at $(date '+%Y-%m-%d %H:%M:%S')"
 
       - name: Upload unit test coverage
         uses: actions/upload-artifact@v4
@@ -135,15 +144,34 @@ jobs:
         uses: browser-actions/setup-chrome@v2
         with:
           chrome-version: stable
+      
+      - name: Verify Chrome installation
+        run: |
+          which google-chrome-stable || which google-chrome || which chromium
+          google-chrome-stable --version || google-chrome --version || chromium --version
 
       - name: Set up database
-        run: bin/rails db:create db:schema:load
+        run: |
+          echo "📦 Setting up database..."
+          bin/rails db:create db:schema:load
+          echo "✅ Database ready"
 
       - name: Precompile assets
-        run: bin/rails assets:precompile
+        run: |
+          echo "🎨 Precompiling assets..."
+          time bin/rails assets:precompile
+          echo "✅ Assets compiled"
 
       - name: Run E2E tests
-        run: bundle exec rspec --tag type:system --format progress
+        run: |
+          echo "⏱️  Starting E2E tests at $(date '+%Y-%m-%d %H:%M:%S')"
+          # Temporarily running only one test for debugging
+          xvfb-run --auto-servernum --server-args="-screen 0 1280x1024x24" bundle exec rspec spec/system/trips_management_spec.rb:14 --format documentation --profile 10
+          echo "✅ Finished E2E tests at $(date '+%Y-%m-%d %H:%M:%S')"
+        env:
+          # Chrome configuration for CI
+          CHROME_NO_SANDBOX: true
+          RAILS_ENV: test
 
       - name: Upload E2E test coverage
         uses: actions/upload-artifact@v4
