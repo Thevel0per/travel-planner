@@ -187,7 +187,9 @@ RSpec.describe 'Trips::GeneratedPlans', type: :request do
             expect(response).to have_http_status(:unprocessable_content)
 
             json = JSON.parse(response.body)
-            expect(json).to have_key('errors')
+            # When create! raises before assignment, controller returns 'error' key
+            expect(json).to have_key('error')
+            expect(json['error']).to eq('Invalid generated plan parameters')
           end
         end
 

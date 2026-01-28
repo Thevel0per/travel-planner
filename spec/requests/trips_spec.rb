@@ -314,7 +314,7 @@ RSpec.describe 'Trips', type: :request do
         end
 
         it 'calls Trips::Create service with correct arguments' do
-          expect(Trips::Create).to receive(:new).with(user:, attributes: instance_of(ActionController::Parameters)).and_return(mock_service)
+          expect(Trips::Create).to receive(:new).with(user:, attributes: instance_of(Hash)).and_return(mock_service)
           expect(mock_service).to receive(:call).and_return(trip)
 
           post trips_path, params: valid_trip_params, as: :json

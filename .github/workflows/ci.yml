@@ -88,6 +88,9 @@ jobs:
       - name: Set up database
         run: bin/rails db:create db:schema:load
 
+      - name: Precompile assets
+        run: bin/rails assets:precompile
+
       - name: Run unit tests
         run: bundle exec rspec --tag ~type:system --format progress
 
@@ -135,6 +138,9 @@ jobs:
 
       - name: Set up database
         run: bin/rails db:create db:schema:load
+
+      - name: Precompile assets
+        run: bin/rails assets:precompile
 
       - name: Run E2E tests
         run: bundle exec rspec --tag type:system --format progress
