@@ -36,11 +36,11 @@ class TripSerializer < ApplicationSerializer
   end
 
   # Associations for detail view
-  association :notes, blueprint: NoteSerializer, if: ->(_, _, options) { 
-    options[:include_associations] 
+  association :notes, blueprint: NoteSerializer, if: ->(_, _, options) {
+    options[:include_associations]
   }
 
-  association :generated_plans, blueprint: GeneratedPlanSerializer, if: ->(_, _, options) { 
-    options[:include_associations] 
+  association :generated_plans, blueprint: GeneratedPlanSerializer, if: ->(_, _, options) {
+    options[:include_associations]
   }
 end

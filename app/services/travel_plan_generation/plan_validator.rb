@@ -47,7 +47,7 @@ module TravelPlanGeneration
       expected_duration = calculate_duration
       summary = plan[:summary]
 
-      return errors << "Missing summary" unless summary
+      return errors << 'Missing summary' unless summary
 
       if summary[:duration_days] != expected_duration
         errors << "Duration mismatch: expected #{expected_duration} days, got #{summary[:duration_days]}"
@@ -66,7 +66,7 @@ module TravelPlanGeneration
       expected_duration = calculate_duration
       daily_itinerary = plan[:daily_itinerary]
 
-      return errors << "Missing daily_itinerary" unless daily_itinerary.is_a?(Array)
+      return errors << 'Missing daily_itinerary' unless daily_itinerary.is_a?(Array)
 
       if daily_itinerary.length != expected_duration
         errors << "Itinerary length mismatch: expected #{expected_duration} days, got #{daily_itinerary.length}"

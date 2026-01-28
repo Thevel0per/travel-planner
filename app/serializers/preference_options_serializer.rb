@@ -6,7 +6,7 @@
 class PreferenceOptionsSerializer < ApplicationSerializer
   # This serializer works with a plain hash object, not an ActiveRecord model
   # The hash should contain arrays for: budget, accommodation, activities, eating_habits
-  
+
   field :budget
   field :accommodation
   field :activities

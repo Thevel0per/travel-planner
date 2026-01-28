@@ -10,7 +10,7 @@ class ErrorSerializer < Blueprinter::Base
     # @param message [String] The error message
     # @return [String] JSON string
     def render_error(message)
-      render_as_hash({ errors: { base: [message] } })
+      render_as_hash({ errors: { base: [ message ] } })
     end
 
     # Render ActiveModel validation errors
@@ -24,7 +24,7 @@ class ErrorSerializer < Blueprinter::Base
     # @param errors [Hash] Hash of field => array of messages
     # @return [String] JSON string
     def render_errors(errors)
-      render_as_hash({ errors: errors })
+      render_as_hash({ errors: })
     end
   end
 end

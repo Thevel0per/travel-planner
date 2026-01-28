@@ -50,7 +50,7 @@ class ApplicationController < ActionController::Base
   # @param options [Hash] Additional options to pass to the serializer
   def render_paginated_json(collection, serializer_class:, pagy:, view: nil, key: :items, **options)
     # Serialize collection with Blueprinter
-    serializer_options = options.merge(view: view).compact
+    serializer_options = options.merge(view:).compact
     items_data = JSON.parse(serializer_class.render(collection, serializer_options))
 
     # Build pagination metadata from Pagy object
@@ -64,7 +64,7 @@ class ApplicationController < ActionController::Base
 
   # Renders a single model as JSON using a Blueprinter serializer
   def render_model_json(model, serializer_class:, view: nil, status: :ok, **options)
-    serializer_options = options.merge(view: view).compact
+    serializer_options = options.merge(view:).compact
     render json: serializer_class.render(model, serializer_options), status:
   end
 

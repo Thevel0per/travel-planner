@@ -88,7 +88,7 @@ class PreferencesController < ApplicationController
     prefs = params.fetch(:preferences, {})
     permitted = prefs.permit(:budget, :accommodation, :activities, :eating_habits)
     result = permitted.to_h
-    
+
     # Convert activities array to comma-separated string if it's an array
     # This handles form checkboxes that submit as arrays
     if result[:activities].is_a?(Array)
@@ -96,7 +96,7 @@ class PreferencesController < ApplicationController
       activities_array = result[:activities].reject(&:blank?)
       result[:activities] = activities_array.any? ? activities_array.join(',') : nil
     end
-    
+
     # Convert empty strings to nil for optional fields
     # This allows clearing preferences by submitting empty values
     result.transform_values { |v| v.presence }
