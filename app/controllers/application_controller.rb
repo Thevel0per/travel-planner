@@ -44,31 +44,28 @@ class ApplicationController < ActionController::Base
 
   # Renders JSON response with pagination
   # @param collection [Array] The collection of model objects
-  # @param dto_class [Class] The DTO class to use for transformation
+  # @param serializer_class [Class] The Blueprinter serializer class to use
   # @param pagy [Pagy] The Pagy object with pagination metadata
-  # @param transform_method [Symbol] The method to call on the DTO class (default: :from_model)
-  def render_paginated_json(collection, dto_class:, pagy:, transform_method: :from_model, key: :items)
-    # Transform each item to DTO
-    items_data = collection.map { |item| dto_class.send(transform_method, item) }
+  # @param view [Symbol] The view to use for serialization (optional)
+  # @param options [Hash] Additional options to pass to the serializer
+  def render_paginated_json(collection, serializer_class:, pagy:, view: nil, key: :items, **options)
+    # Serialize collection with Blueprinter
+    serializer_options = options.merge(view: view).compact
+    items_data = JSON.parse(serializer_class.render(collection, serializer_options))
 
     # Build pagination metadata from Pagy object
-    meta_data = DTOs::PaginationMetaDTO.build(
-      current_page: pagy.page,
-      total_pages: pagy.pages,
-      total_count: pagy.count,
-      per_page: pagy.limit
-    )
+    meta_data = PaginationSerializer.from_pagy(pagy)
 
     render json: {
-      key => items_data.map(&:serialize),
-      meta: meta_data.serialize
+      key => items_data,
+      meta: meta_data
     }, status: :ok
   end
 
-  # Renders a single model as JSON using a DTO
-  def render_model_json(model, dto_class:, transform_method: :from_model, status: :ok)
-    dto = dto_class.send(transform_method, model)
-    render json: dto.serialize, status:
+  # Renders a single model as JSON using a Blueprinter serializer
+  def render_model_json(model, serializer_class:, view: nil, status: :ok, **options)
+    serializer_options = options.merge(view: view).compact
+    render json: serializer_class.render(model, serializer_options), status:
   end
 
   # Renders a success response with optional data
@@ -82,10 +79,10 @@ class ApplicationController < ActionController::Base
   def handle_validation_errors(errors, redirect_path: nil)
     # Convert array of error messages to hash format if needed
     errors_hash = errors.is_a?(Array) ? { 'parameters' => errors } : errors
-    error_dto = DTOs::ErrorResponseDTO.validation_errors(errors_hash)
+    error_response = ErrorSerializer.render_errors(errors_hash)
 
     respond_to do |format|
-      format.json { render json: error_dto.serialize, status: :bad_request }
+      format.json { render json: error_response, status: :bad_request }
       format.html do
         flash[:alert] = format_errors_for_flash(errors_hash)
         redirect_to redirect_path || request.referer || root_path
@@ -97,10 +94,10 @@ class ApplicationController < ActionController::Base
   def handle_bad_request(exception)
     Rails.logger.warn("Bad request in #{controller_name}##{action_name}: #{exception.message}")
 
-    error_dto = DTOs::ErrorResponseDTO.single_error(exception.message)
+    error_response = ErrorSerializer.render_error(exception.message)
 
     respond_to do |format|
-      format.json { render json: error_dto.serialize, status: :bad_request }
+      format.json { render json: error_response, status: :bad_request }
       format.html do
         flash[:alert] = exception.message
         redirect_to request.referer || root_path
@@ -112,10 +109,10 @@ class ApplicationController < ActionController::Base
   def handle_not_found(exception)
     Rails.logger.warn("Not found in #{controller_name}##{action_name}: #{exception.message}")
 
-    error_dto = DTOs::ErrorResponseDTO.single_error('Resource not found')
+    error_response = ErrorSerializer.render_error('Resource not found')
 
     respond_to do |format|
-      format.json { render json: error_dto.serialize, status: :not_found }
+      format.json { render json: error_response, status: :not_found }
       format.html do
         flash[:alert] = 'Resource not found'
         redirect_to root_path
@@ -126,10 +123,10 @@ class ApplicationController < ActionController::Base
   # Handles pagination overflow (page number too high)
   def handle_pagination_overflow(_exception = nil)
     error_message = 'Page number exceeds available pages'
-    error_dto = DTOs::ErrorResponseDTO.single_error(error_message)
+    error_response = ErrorSerializer.render_error(error_message)
 
     respond_to do |format|
-      format.json { render json: error_dto.serialize, status: :bad_request }
+      format.json { render json: error_response, status: :bad_request }
       format.html do
         flash[:alert] = error_message
         redirect_to request.referer || root_path
@@ -142,10 +139,10 @@ class ApplicationController < ActionController::Base
     Rails.logger.error("Unexpected error in #{controller_name}##{action_name}: #{exception.message}")
     Rails.logger.error(exception.backtrace.join("\n"))
 
-    error_dto = DTOs::ErrorResponseDTO.single_error('An unexpected error occurred')
+    error_response = ErrorSerializer.render_error('An unexpected error occurred')
 
     respond_to do |format|
-      format.json { render json: error_dto.serialize, status: :internal_server_error }
+      format.json { render json: error_response, status: :internal_server_error }
       format.html do
         flash[:alert] = 'An unexpected error occurred'
         redirect_to root_path

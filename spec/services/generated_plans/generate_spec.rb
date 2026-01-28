@@ -218,17 +218,19 @@ RSpec.describe GeneratedPlans::Generate do
         expect(result).to be_success
       end
 
-      it 'includes plan content' do
+      it 'includes plan content as hash' do
         result = service.call
-        expect(result.data).to be_a(Schemas::GeneratedPlanContent)
+        expect(result.data).to be_a(Hash)
+        expect(result.data).to have_key(:summary)
+        expect(result.data).to have_key(:daily_itinerary)
       end
 
       it 'has correct summary data' do
         result = service.call
-        summary = result.data&.summary
+        summary = result.data[:summary]
 
-        expect(summary&.duration_days).to eq(5)
-        expect(summary&.number_of_people).to eq(2)
+        expect(summary[:duration_days]).to eq(5)
+        expect(summary[:number_of_people]).to eq(2)
       end
     end
 

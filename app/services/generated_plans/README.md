@@ -16,8 +16,8 @@ service = GeneratedPlans::Generate.new(
 result = service.call
 
 if result.success?
-  plan_content = result.data  # Schemas::GeneratedPlanContent
-  generated_plan.mark_as_completed!(plan_content.to_json_string)
+  plan_content = result.data  # Hash with symbolized keys
+  generated_plan.mark_as_completed!(plan_content.to_json)
 elsif result.retryable?
   # Retry later
   RetryGenerationJob.perform_later(trip_id)
@@ -31,7 +31,7 @@ end
 - `success?` - Whether generation succeeded
 - `failure?` - Whether generation failed
 - `retryable?` - Whether error is retryable (use OpenRouter client's logic)
-- `data` - Generated plan (Schemas::GeneratedPlanContent) on success
+- `data` - Generated plan as Hash with symbolized keys on success
 - `error_message` - Error description on failure
 
 **Flow:**

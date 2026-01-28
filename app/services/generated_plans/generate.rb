@@ -76,7 +76,8 @@ module GeneratedPlans
         result = process_response(response)
 
         if result.success?
-          generated_plan.mark_as_completed!(result.data.to_json_string)
+          # Convert hash to JSON string for storage
+          generated_plan.mark_as_completed!(result.data.to_json)
         else
           Rails.logger.error("ERROR: Plan processing failed: #{result.error_message}")
           generated_plan.mark_as_failed!
@@ -143,9 +144,9 @@ module GeneratedPlans
 
     sig { params(response: OpenRouter::Response).returns(ServiceResult) }
     def process_response(response)
-      # Parse JSON
+      # Parse JSON to hash
       begin
-        plan_content = Schemas::GeneratedPlanContent.from_json(response.content || '{}')
+        plan_content = JSON.parse(response.content || '{}', symbolize_names: true)
       rescue => e
         error_msg = "Failed to parse plan content: #{e.message}"
         Rails.logger.error("ERROR: #{error_msg}")
