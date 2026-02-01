@@ -1,10 +1,45 @@
 <%# Turbo Stream for generated plan creation %>
-<%# Updates the plans list to include the new plan %>
+<%# Updates the plans list to include the new plan or displays error %>
 
 <% if @generated_plan&.persisted? %>
-  <%# Update the entire list to ensure proper ordering and empty state handling %>
+  <%# Success: Update the entire list to ensure proper ordering and empty state handling %>
   <%= turbo_stream.update "generated_plans_list" do %>
     <%= render 'trips/generated_plans_list', plans: @trip.generated_plans.ordered %>
+  <% end %>
+<% else %>
+  <%# Error: Display error message in toast %>
+  <%= turbo_stream.append "toast-container" do %>
+    <div 
+      data-controller="toast"
+      data-toast-type-value="alert"
+      data-toast-timeout-value="10000"
+      class="flex items-center gap-3 w-full max-w-sm rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5 border-l-4 border-red-500 p-4 transition-all duration-300"
+      role="alert"
+      aria-live="assertive">
+      <%# Error Icon %>
+      <div class="flex-shrink-0">
+        <svg class="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </div>
+      
+      <%# Message Text with Link %>
+      <div class="flex-1 text-sm">
+        <p class="font-medium text-gray-900">Cannot generate plan without preferences.</p>
+        <a href="<%= profile_path %>" class="text-blue-600 hover:text-blue-800 underline">Set your preferences here</a>
+      </div>
+      
+      <%# Close Button %>
+      <button
+        type="button"
+        data-action="click->toast#dismiss"
+        class="flex-shrink-0 p-1 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-red-500"
+        aria-label="Dismiss notification">
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
   <% end %>
 <% end %>
 

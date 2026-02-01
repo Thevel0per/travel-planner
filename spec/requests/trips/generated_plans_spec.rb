@@ -69,10 +69,18 @@ RSpec.describe 'Trips::GeneratedPlans', type: :request do
           expect(json['error']).to include('user preferences')
         end
 
-          it 'returns 422 for Turbo Stream requests' do
-            post trip_generated_plans_path(trip), headers: { 'Accept' => 'text/vnd.turbo-stream.html' }
-            expect(response).to have_http_status(:unprocessable_content)
-          end
+        it 'returns 422 for Turbo Stream requests' do
+          post trip_generated_plans_path(trip), headers: { 'Accept' => 'text/vnd.turbo-stream.html' }
+          expect(response).to have_http_status(:unprocessable_content)
+        end
+
+        it 'returns error toast in Turbo Stream response' do
+          post trip_generated_plans_path(trip), headers: { 'Accept' => 'text/vnd.turbo-stream.html' }
+          expect(response.body).to include('toast-container')
+          expect(response.body).to include('Cannot generate plan without preferences')
+          expect(response.body).to include('Set your preferences here')
+          expect(response.body).to include(profile_path)
+        end
       end
 
       context 'with user preferences' do
