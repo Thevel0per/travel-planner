@@ -14,7 +14,10 @@ An AI-powered travel planning application designed to simplify the process of cr
 - [Getting Started Locally](#getting-started-locally)
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
+- [Running Tests](#running-tests)
 - [Available Scripts](#available-scripts)
+- [CI/CD](#cicd)
+- [Troubleshooting](#troubleshooting)
 - [Project Scope](#project-scope)
   - [In Scope for MVP](#in-scope-for-mvp)
   - [Out of Scope for MVP](#out-of-scope-for-mvp)
@@ -43,14 +46,22 @@ The project is built with a modern Ruby on Rails stack:
 
 | Category          | Technology                                       |
 |-------------------|--------------------------------------------------|
-| **Backend**       | Ruby on Rails 8, Puma                            |
+| **Backend**       | Ruby on Rails 8.0, Puma                          |
 | **Frontend**      | Hotwire (Turbo, Stimulus), Tailwind CSS, Importmap|
-| **Database**      | PostgreSQL                                       |
+| **Database**      | PostgreSQL 17                                    |
 | **Authentication**| Devise                                           |
-| **AI Integration**| OpenRouter.ai                                    |
-| **Testing**       | RSpec                                            |
+| **AI Integration**| OpenRouter.ai (GPT-4o-mini)                      |
+| **Testing**       | RSpec, Capybara, Selenium                        |
+| **Code Quality**  | RuboCop, Brakeman, SimpleCov                     |
+| **Type Safety**   | Sorbet, Tapioca                                  |
 | **Deployment**    | Docker, Kamal, DigitalOcean                      |
 | **CI/CD**         | GitHub Actions                                   |
+
+### Key Dependencies
+- **Blueprinter**: JSON serialization
+- **Pagy**: Pagination
+- **FactoryBot**: Test data generation
+- **WebMock**: HTTP request stubbing for tests
 
 ---
 
@@ -58,14 +69,116 @@ The project is built with a modern Ruby on Rails stack:
 
 Follow these instructions to set up the project on your local machine for development and testing.
 
+> **💡 First Time with Ruby?** Don't worry! We'll guide you through installing Ruby using asdf, a popular version manager that makes it easy to work with Ruby projects.
+
 ### Prerequisites
 
-Make sure you have the following software installed on your system:
-- **Ruby**: `~> 3.2.2`
-- **Rails**: `~> 8.0.2`
+#### Ruby Setup with asdf (Recommended)
+
+If you don't have Ruby installed, we recommend using [asdf](https://asdf-vm.com/) for version management. It allows you to easily switch between Ruby versions.
+
+**1. Install asdf:**
+
+<details>
+<summary><strong>macOS</strong></summary>
+
+```sh
+# Using Homebrew
+brew install asdf
+
+# Add to your shell profile (~/.zshrc or ~/.bash_profile)
+echo -e "\n. $(brew --prefix asdf)/libexec/asdf.sh" >> ~/.zshrc
+# Restart your terminal or run:
+source ~/.zshrc
+```
+</details>
+
+<details>
+<summary><strong>Linux (Ubuntu/Debian)</strong></summary>
+
+```sh
+# Clone asdf
+git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.14.0
+
+# Add to your shell profile (~/.bashrc or ~/.zshrc)
+echo -e '\n. "$HOME/.asdf/asdf.sh"' >> ~/.bashrc
+echo -e '\n. "$HOME/.asdf/completions/asdf.bash"' >> ~/.bashrc
+# Restart your terminal or run:
+source ~/.bashrc
+```
+</details>
+
+**2. Install Ruby plugin and dependencies:**
+
+```sh
+# Add the Ruby plugin to asdf
+asdf plugin add ruby
+
+# Install Ruby dependencies (macOS)
+brew install openssl readline libyaml gmp
+
+# Install Ruby dependencies (Ubuntu/Debian)
+sudo apt-get install -y build-essential libssl-dev libreadline-dev zlib1g-dev
+```
+
+**3. Install the project's Ruby version:**
+
+```sh
+# This will automatically install the version specified in .ruby-version
+asdf install ruby
+
+# Set it as the default version for this project
+asdf local ruby 3.4.4
+```
+
+**4. Verify Ruby installation:**
+
+```sh
+ruby -v
+# Should output: ruby 3.4.4
+
+which ruby
+# Should show asdf path
+```
+
+<details>
+<summary><strong>Alternative: Using rbenv or RVM</strong></summary>
+
+If you prefer other Ruby version managers:
+
+**rbenv:**
+```sh
+# Install rbenv
+brew install rbenv  # macOS
+# or follow: https://github.com/rbenv/rbenv#installation
+
+# Install Ruby
+rbenv install 3.4.4
+rbenv local 3.4.4
+```
+
+**RVM:**
+```sh
+# Install RVM
+\curl -sSL https://get.rvm.io | bash -s stable
+
+# Install Ruby
+rvm install 3.4.4
+rvm use 3.4.4
+```
+</details>
+
+#### Other Required Software
+
+Make sure you also have the following installed:
+- **Rails**: `~> 8.0.2` (will be installed via bundler)
 - **Node.js**: `~> 20.x` (for the asset pipeline)
-- **PostgreSQL**: `~> 14.x`
-- **Docker** (optional, for a containerized setup)
+  - With asdf: `asdf plugin add nodejs && asdf install nodejs 20.11.0`
+  - With Homebrew: `brew install node@20`
+- **PostgreSQL**: `~> 17.x`
+  - With Homebrew: `brew install postgresql@17`
+  - With apt: `sudo apt-get install postgresql-17`
+- **Docker** (optional, for containerized setup)
 
 ### Installation
 
@@ -81,17 +194,35 @@ Make sure you have the following software installed on your system:
     ```
 
 3.  **Set up environment variables:**
-    Create a `.env` file in the project root by copying the example file:
+    
+    Rails 8 uses encrypted credentials. For development, you'll need to set up:
+    
     ```sh
-    cp .env.example .env
+    # Generate a new master key if you don't have one
+    # This will create config/master.key
+    EDITOR="nano" bin/rails credentials:edit
     ```
-    Update the `.env` file with your local database credentials and any necessary API keys (e.g., `OPENROUTER_API_KEY`).
+    
+    Add the following to your credentials:
+    ```yaml
+    openrouter:
+      api_key: your_openrouter_api_key_here
+    
+    # Optional: Configure email settings for Devise
+    # smtp:
+    #   address: smtp.gmail.com
+    #   port: 587
+    #   user_name: your_email@gmail.com
+    #   password: your_app_password
+    ```
+    
+    **Note**: Never commit `config/master.key` to version control.
 
 4.  **Create and set up the database:**
     ```sh
-    rails db:create
-    rails db:migrate
-    rails db:seed
+    bin/rails db:create
+    bin/rails db:migrate
+    bin/rails db:seed
     ```
 
 5.  **Start the development server:**
@@ -107,9 +238,100 @@ Make sure you have the following software installed on your system:
 This project includes several scripts to help with development:
 
 -   `bin/dev`: Starts the development server (Rails server, CSS watcher, etc.).
--   `bin/rails spec`: Runs the automated test suite.
+-   `bin/rails spec`: Runs the full automated test suite.
+-   `bundle exec rspec spec/system`: Runs E2E/system tests only.
+-   `bundle exec rspec --tag ~type:system`: Runs unit tests only (excludes system tests).
 -   `bin/rubocop`: Lints the codebase for style consistency.
 -   `bin/brakeman`: Runs a static analysis for security vulnerabilities.
+
+---
+
+## Running Tests
+
+### Full Test Suite
+```sh
+bundle exec rspec
+```
+
+### Unit Tests Only
+```sh
+bundle exec rspec --tag ~type:system
+```
+
+### E2E/System Tests Only
+```sh
+# Headless mode (default)
+bundle exec rspec spec/system
+
+# With visible browser (for debugging)
+HEADFUL=1 bundle exec rspec spec/system
+```
+
+**Note**: System tests use Selenium with Chrome. Chrome will be installed automatically in CI, but for local development, you need Chrome installed on your system.
+
+### Test Coverage
+Test coverage reports are generated in the `coverage/` directory after running tests. Open `coverage/index.html` in your browser to view the report.
+
+---
+
+## CI/CD
+
+The project uses GitHub Actions for continuous integration. The pipeline includes:
+
+- **Linting**: Code style checks with RuboCop
+- **Security Scanning**: Brakeman (Ruby) and Importmap audit (JavaScript)
+- **Unit Tests**: Fast tests excluding system tests
+- **E2E Tests**: System tests with Selenium and headless Chrome
+
+All tests run automatically on pull requests and pushes to the main branch.
+
+---
+
+## Troubleshooting
+
+### Database Connection Issues
+If you encounter database connection errors:
+```sh
+# Check PostgreSQL is running
+# On macOS with Homebrew:
+brew services list
+
+# Start PostgreSQL if not running:
+brew services start postgresql@17
+```
+
+### Missing Chrome for E2E Tests
+System tests require Chrome to be installed:
+```sh
+# On macOS:
+brew install --cask google-chrome
+
+# On Ubuntu/Debian:
+sudo apt-get install google-chrome-stable
+```
+
+### Bundle Install Errors
+If you encounter native extension compilation errors:
+```sh
+# On macOS, ensure Xcode Command Line Tools are installed:
+xcode-select --install
+
+# On Ubuntu/Debian:
+sudo apt-get install build-essential libpq-dev
+```
+
+### Port Already in Use
+If port 3000 is already in use:
+```sh
+# Find the process using the port
+lsof -i :3000
+
+# Kill the process (replace PID with actual process ID)
+kill -9 PID
+
+# Or use a different port
+bin/rails server -p 3001
+```
 
 ---
 
