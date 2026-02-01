@@ -12,8 +12,8 @@
     <%= render 'plan_status_banner', status: @generated_plan.status %>
     
     <!-- Plan Content Section (only when completed) -->
-    <% if @generated_plan.status == 'completed' && @generated_plan.content.present? %>
-      <%= render 'plan_content_section', content: @generated_plan.content, generated_plan: @generated_plan, trip: @trip %>
+    <% if @generated_plan.status == 'completed' && @generated_plan.parsed_content.present? %>
+      <%= render 'plan_content_section', content: @generated_plan.parsed_content, generated_plan: @generated_plan, trip: @trip %>
     <% end %>
     
     <!-- Navigation Actions -->

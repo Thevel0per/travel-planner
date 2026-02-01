@@ -1,6 +1,8 @@
 # typed: strict
 # frozen_string_literal: true
 
+require 'ostruct'
+
 class GeneratedPlan < ApplicationRecord
   extend T::Sig
 
@@ -27,6 +29,18 @@ class GeneratedPlan < ApplicationRecord
 
   # Scopes
   scope :ordered, -> { order(created_at: :desc) }
+
+  # Parse JSON content into a Ruby object with method access
+  sig { returns(T.nilable(OpenStruct)) }
+  def parsed_content
+    return nil if content.blank?
+
+    @parsed_content = T.let(@parsed_content, T.nilable(OpenStruct))
+    @parsed_content ||= JSON.parse(content, object_class: OpenStruct)
+  rescue JSON::ParserError => e
+    Rails.logger.error("Failed to parse generated plan content: #{e.message}")
+    nil
+  end
 
   # Status transitions (Rails enum provides status query methods like pending?, generating?, etc.)
   sig { void }
