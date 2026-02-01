@@ -36,9 +36,9 @@ Capybara.register_driver(:cuprite) do |app|
     browser_options: {},
     headless: !ENV['HEADFUL'],
     js_errors: true,
-    # Performance optimizations
-    process_timeout: 30,
-    timeout: 30,
+    # Increased timeouts for CI environment
+    process_timeout: ENV['CI'] ? 60 : 30,
+    timeout: ENV['CI'] ? 60 : 30,
     inspector: false
   }
 
@@ -51,11 +51,23 @@ Capybara.register_driver(:cuprite) do |app|
       'disable-software-rasterizer' => nil,
       'disable-web-security' => nil,
       'disable-features' => 'VizDisplayCompositor',
-      'window-size' => '1920,1080'
+      'window-size' => '1920,1080',
+      # Additional stability flags for CI
+      'disable-setuid-sandbox' => nil,
+      'disable-extensions' => nil,
+      'disable-background-networking' => nil,
+      'disable-default-apps' => nil,
+      'disable-sync' => nil,
+      'metrics-recording-only' => nil,
+      'mute-audio' => nil,
+      'no-first-run' => nil
     }
 
     # Explicitly set Chrome binary path if available from environment
     options[:browser_path] = ENV['CHROME_PATH'] if ENV['CHROME_PATH']
+
+    # Enable debug logging in CI to help troubleshoot
+    options[:logger] = Logger.new($stdout) if ENV['DEBUG_CUPRITE']
   end
 
   Capybara::Cuprite::Driver.new(app, **options)
