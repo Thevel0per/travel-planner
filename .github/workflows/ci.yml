@@ -86,22 +86,13 @@ jobs:
           bundler-cache: true
 
       - name: Set up database
-        run: |
-          echo "📦 Setting up database..."
-          bin/rails db:create db:schema:load
-          echo "✅ Database ready"
+        run: bin/rails db:create db:schema:load
 
       - name: Precompile assets
-        run: |
-          echo "🎨 Precompiling assets..."
-          time bin/rails assets:precompile
-          echo "✅ Assets compiled"
+        run: bin/rails assets:precompile
 
       - name: Run unit tests
-        run: |
-          echo "⏱️  Starting unit tests at $(date '+%Y-%m-%d %H:%M:%S')"
-          bundle exec rspec --tag ~type:system --format progress --profile 10
-          echo "✅ Finished unit tests at $(date '+%Y-%m-%d %H:%M:%S')"
+        run: bundle exec rspec --tag ~type:system --format progress --profile 10
 
       - name: Upload unit test coverage
         uses: actions/upload-artifact@v4
@@ -118,8 +109,6 @@ jobs:
     env:
       RAILS_ENV: test
       DATABASE_URL: postgres://postgres:postgres@localhost:5432/travel_planner_test
-      # CI flag enables Cuprite's CI-specific Chrome options
-      CI: true
     
     services:
       postgres:
@@ -147,18 +136,12 @@ jobs:
 
       - name: Set up database
         run: bin/rails db:create db:schema:load
-        env:
-          RAILS_ENV: test
 
       - name: Precompile assets
         run: bin/rails assets:precompile
-        env:
-          RAILS_ENV: test
 
       - name: Run E2E tests
-        run: bin/rails spec
-        env:
-          RAILS_ENV: test
+        run: bundle exec rspec spec/system
 
       - name: Upload E2E test coverage
         uses: actions/upload-artifact@v4
