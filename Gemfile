@@ -1,94 +1,94 @@
 source 'https://rubygems.org'
 
-# Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
+# Core Framework - Rails 8.x with modern defaults
 gem 'rails', '~> 8.0.2', '>= 8.0.2.1'
-# The modern asset pipeline for Rails [https://github.com/rails/propshaft]
+
+# Asset Pipeline - Modern propshaft for serving static assets
 gem 'propshaft'
-# Use postgresql as the database for Active Record
+
+# Database - PostgreSQL for production-ready relational data
 gem 'pg', '~> 1.1'
-# Use the Puma web server [https://github.com/puma/puma]
+
+# Web Server - Puma for multi-threaded request handling
 gem 'puma', '>= 5.0'
-# Use JavaScript with ESM import maps [https://github.com/rails/importmap-rails]
+
+# JavaScript Management - Import maps for ESM modules without bundlers
 gem 'importmap-rails'
-# Hotwire's SPA-like page accelerator [https://turbo.hotwired.dev]
-gem 'turbo-rails'
-# Hotwire's modest JavaScript framework [https://stimulus.hotwired.dev]
-gem 'stimulus-rails'
-# Use Tailwind CSS [https://github.com/rails/tailwindcss-rails]
+
+# Hotwire Stack - Modern SPA-like interactions without heavy JS frameworks
+gem 'turbo-rails'    # Turbo Drive, Frames, and Streams for dynamic updates
+gem 'stimulus-rails' # Lightweight JS for sprinkles of interactivity
+
+# CSS Framework - Utility-first Tailwind CSS
 gem 'tailwindcss-rails'
-# Build JSON APIs with ease [https://github.com/rails/jbuilder]
-gem 'jbuilder'
 
-# Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
-# gem "bcrypt", "~> 3.1.7"
-
-# Windows does not include zoneinfo files, so bundle the tzinfo-data gem
+# Platform-specific - Timezone data for Windows/JRuby
 gem 'tzinfo-data', platforms: %i[ windows jruby ]
 
-# Use the database-backed adapters for Rails.cache, Active Job, and Action Cable
-gem 'solid_cache'
-gem 'solid_queue'
-gem 'solid_cable'
+# Solid Suite - Database-backed Rails 8 defaults for caching, jobs, and websockets
+gem 'solid_cache'  # Active Support cache backend
+gem 'solid_queue' # Active Job backend for background processing
 
-# Reduces boot times through caching; required in config/boot.rb
+# Performance - Speeds up boot time by caching expensive operations
 gem 'bootsnap', require: false
 
-# Deploy this application anywhere as a Docker container [https://kamal-deploy.org]
+# Deployment - Docker deployment tool (has config but may use Kubernetes instead)
+# Used for docker-based deployments, .kamal config exists
 gem 'kamal', require: false
 
-# Add HTTP asset caching/compression and X-Sendfile acceleration to Puma [https://github.com/basecamp/thruster/]
+# Production Performance - HTTP caching and X-Sendfile for Puma
 gem 'thruster', require: false
 
-# Authentication
+# Authentication - Devise for user registration, login, and session management
 gem 'devise', '~> 4.9'
 
-# Type checking with Sorbet
+# Type Checking - Sorbet runtime for gradual typing (has RBI files)
 gem 'sorbet-runtime'
 
-# Pagination
+# Pagination - Lightweight pagination in controllers and views
 gem 'pagy', '~> 9.0'
 
-# JSON Serialization
+# JSON Serialization - API response formatting with Blueprinter
 gem 'blueprinter', '~> 1.2'
 
-# Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
-# gem "image_processing", "~> 1.2"
-
 group :development, :test do
-  # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
+  # Debugging - Interactive debugger for troubleshooting
   gem 'debug', platforms: %i[ mri windows ], require: 'debug/prelude'
 
-  # Static analysis for security vulnerabilities [https://brakemanscanner.org/]
+  # Security - Static analysis to detect security vulnerabilities
   gem 'brakeman', require: false
 
-  # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
+  # Code Quality - Ruby style guide enforcement (Rails Omakase preset)
   gem 'rubocop-rails-omakase', require: false
 
-  # Testing framework
+  # Testing Framework - RSpec for behavior-driven testing
   gem 'rspec-rails', '~> 7.0'
+
+  # Test Data - Factory Bot for creating test objects
   gem 'factory_bot_rails', '~> 6.4'
+
+  # Test Matchers - Shoulda for concise model and controller testing
   gem 'shoulda-matchers', '~> 6.0'
+
+  # HTTP Mocking - WebMock for stubbing external API calls
   gem 'webmock', '~> 3.23'
 
-  # E2E testing
+  # System Testing - Capybara for browser-based feature tests
   gem 'capybara', '~> 3.40'
-  gem 'selenium-webdriver'
+  gem 'selenium-webdriver' # WebDriver for browser automation
 
-  # Code coverage
+  # Code Coverage - SimpleCov for test coverage reports
   gem 'simplecov', '~> 0.22.0', require: false
 
-  # Retry flaky tests
+  # Test Reliability - Auto-retry for flaky tests
   gem 'rspec-retry', '~> 0.6.2'
 
-  # JSON Schema validation for testing
-  gem 'json_schemer', '~> 2.3'
-
-  # Sorbet static type checker
+  # Type Checking - Sorbet static type checker and RBI generator
   gem 'sorbet'
   gem 'tapioca', require: false
 end
 
 group :development do
-  # Use console on exceptions pages [https://github.com/rails/web-console]
+  # Development UI - Interactive console on exception pages
   gem 'web-console'
 end
