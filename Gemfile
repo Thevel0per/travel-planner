@@ -72,7 +72,7 @@ group :development, :test do
 
   # E2E testing
   gem 'capybara', '~> 3.40'
-  gem 'cuprite', '~> 0.17'
+  gem 'selenium-webdriver'
 
   # Code coverage
   gem 'simplecov', '~> 0.22.0', require: false

@@ -25,10 +25,11 @@ RSpec.configure do |config|
   config.include Devise::Test::IntegrationHelpers, type: :system
 
   config.before(:each, type: :system) do
-    driven_by(:cuprite)
+    # Use Selenium with headless Chrome (matches Rails defaults)
+    driven_by :selenium, using: :headless_chrome, screen_size: [ 1400, 1400 ]
   end
 
-  # Use transactional fixtures for system tests with Cuprite
-  # Cuprite shares the same database connection as the test
+  # Use transactional fixtures for system tests with Selenium
+  # Selenium runs in a separate thread but shares the same database connection
   config.use_transactional_fixtures = true
 end

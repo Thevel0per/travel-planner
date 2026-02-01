@@ -374,6 +374,10 @@ RSpec.describe 'Trip Management Workflow', type: :system do
           find('[data-testid="delete-trip-button"]').click
         end
 
+        # Wait for redirect to trips list page
+        expect(page).to have_current_path(trips_path)
+        expect(page).to have_content('Trip deleted successfully')
+
         # Verify trip and note are deleted
         expect(Trip.exists?(trip.id)).to be false
         expect(Note.exists?(note.id)).to be false

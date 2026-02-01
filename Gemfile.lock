@@ -102,9 +102,6 @@ GEM
       bigdecimal
       rexml
     crass (1.0.6)
-    cuprite (0.17)
-      capybara (~> 3.0)
-      ferrum (~> 0.17.0)
     date (3.4.1)
     debug (1.11.0)
       irb (~> 1.10)
@@ -129,12 +126,6 @@ GEM
     factory_bot_rails (6.5.1)
       factory_bot (~> 6.5)
       railties (>= 6.1.0)
-    ferrum (0.17.1)
-      addressable (~> 2.5)
-      base64 (~> 0.2)
-      concurrent-ruby (~> 1.1)
-      webrick (~> 1.7)
-      websocket-driver (~> 0.7)
     fugit (1.11.2)
       et-orbi (~> 1, >= 1.2.11)
       raabro (~> 1.4)
@@ -348,7 +339,14 @@ GEM
       rubocop-performance (>= 1.24)
       rubocop-rails (>= 2.30)
     ruby-progressbar (1.13.0)
+    rubyzip (3.2.2)
     securerandom (0.4.1)
+    selenium-webdriver (4.40.0)
+      base64 (~> 0.2)
+      logger (~> 1.4)
+      rexml (~> 3.2, >= 3.2.5)
+      rubyzip (>= 1.2.2, < 4.0)
+      websocket (~> 1.0)
     shoulda-matchers (6.5.0)
       activesupport (>= 5.2.0)
     simplecov (0.22.0)
@@ -447,7 +445,7 @@ GEM
       addressable (>= 2.8.0)
       crack (>= 0.3.2)
       hashdiff (>= 0.4.0, < 2.0.0)
-    webrick (1.9.1)
+    websocket (1.2.11)
     websocket-driver (0.8.0)
       base64
       websocket-extensions (>= 0.1.0)
@@ -474,7 +472,6 @@ DEPENDENCIES
   bootsnap
   brakeman
   capybara (~> 3.40)
-  cuprite (~> 0.17)
   debug
   devise (~> 4.9)
   factory_bot_rails (~> 6.4)
@@ -490,6 +487,7 @@ DEPENDENCIES
   rspec-rails (~> 7.0)
   rspec-retry (~> 0.6.2)
   rubocop-rails-omakase
+  selenium-webdriver
   shoulda-matchers (~> 6.0)
   simplecov (~> 0.22.0)
   solid_cable

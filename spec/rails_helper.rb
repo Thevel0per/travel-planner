@@ -28,59 +28,11 @@ require 'rspec/retry'
 # Capybara configuration for E2E tests
 require 'capybara/rails'
 require 'capybara/rspec'
-require 'capybara/cuprite'
 
-Capybara.register_driver(:cuprite) do |app|
-  options = {
-    window_size: [ 1400, 1400 ],
-    browser_options: {},
-    headless: !ENV['HEADFUL'],
-    js_errors: true,
-    # Increased timeouts for CI environment
-    process_timeout: ENV['CI'] ? 60 : 30,
-    timeout: ENV['CI'] ? 60 : 30,
-    inspector: false
-  }
-
-  # CI-specific Chrome options
-  if ENV['CI']
-    options[:browser_options] = {
-      'no-sandbox' => nil,
-      'disable-dev-shm-usage' => nil,
-      'disable-gpu' => nil,
-      'disable-software-rasterizer' => nil,
-      'disable-web-security' => nil,
-      'disable-features' => 'VizDisplayCompositor',
-      'window-size' => '1920,1080',
-      # Additional stability flags for CI
-      'disable-setuid-sandbox' => nil,
-      'disable-extensions' => nil,
-      'disable-background-networking' => nil,
-      'disable-default-apps' => nil,
-      'disable-sync' => nil,
-      'metrics-recording-only' => nil,
-      'mute-audio' => nil,
-      'no-first-run' => nil
-    }
-
-    # Explicitly set Chrome binary path if available from environment
-    options[:browser_path] = ENV['CHROME_PATH'] if ENV['CHROME_PATH']
-
-    # Enable debug logging in CI to help troubleshoot
-    options[:logger] = Logger.new($stdout) if ENV['DEBUG_CUPRITE']
-  end
-
-  Capybara::Cuprite::Driver.new(app, **options)
-end
-
-Capybara.default_driver = :rack_test
-Capybara.javascript_driver = :cuprite
+# Configure Capybara to use Selenium with headless Chrome
+# This matches Rails' ApplicationSystemTestCase defaults
 Capybara.default_max_wait_time = ENV['CI'] ? 10 : 5
 Capybara.server = :puma, { Silent: true } # Suppress Puma output in tests
-
-# Increase server timeout in CI
-Capybara.server_host = '127.0.0.1'
-Capybara.server_port = 3001 if ENV['CI']
 # Add additional requires below this line. Rails is not loaded until this point!
 
 # Requires supporting ruby files with custom matchers and macros, etc, in

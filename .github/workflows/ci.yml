@@ -142,72 +142,23 @@ jobs:
           ruby-version: .ruby-version
           bundler-cache: true
 
-      - name: Install Chrome dependencies
-        run: |
-          echo "📦 Installing Chrome dependencies..."
-          sudo apt-get update
-          sudo apt-get install -y \
-            libnss3 \
-            libnspr4 \
-            libatk1.0-0 \
-            libatk-bridge2.0-0 \
-            libcups2 \
-            libdrm2 \
-            libxkbcommon0 \
-            libxcomposite1 \
-            libxdamage1 \
-            libxfixes3 \
-            libxrandr2 \
-            libgbm1 \
-            libasound2t64
-
-      - name: Install Chrome browser
-        uses: browser-actions/setup-chrome@v2
-        with:
-          chrome-version: stable
-      
-      - name: Verify Chrome installation
-        run: |
-          echo "🔍 Checking Chrome installation..."
-          CHROME_PATH=$(which google-chrome-stable || which google-chrome || which chromium)
-          echo "Chrome found at: $CHROME_PATH"
-          $CHROME_PATH --version
-          echo "CHROME_PATH=$CHROME_PATH" >> $GITHUB_ENV
-          
-          # Test Chrome can start in headless mode
-          echo "🧪 Testing Chrome headless mode..."
-          $CHROME_PATH --headless --disable-gpu --no-sandbox --dump-dom about:blank > /dev/null 2>&1 && echo "✅ Chrome headless test passed" || echo "❌ Chrome headless test failed"
+      - name: Install system dependencies
+        run: sudo apt-get update && sudo apt-get install --no-install-recommends -y google-chrome-stable curl libvips postgresql-client libpq-dev
 
       - name: Set up database
-        run: |
-          echo "📦 Setting up database..."
-          bin/rails db:create db:schema:load
-          echo "✅ Database ready"
+        run: bin/rails db:create db:schema:load
+        env:
+          RAILS_ENV: test
 
       - name: Precompile assets
-        run: |
-          echo "🎨 Precompiling assets..."
-          time bin/rails assets:precompile
-          echo "✅ Assets compiled"
+        run: bin/rails assets:precompile
+        env:
+          RAILS_ENV: test
 
       - name: Run E2E tests
-        run: |
-          echo "⏱️  Starting E2E tests at $(date '+%Y-%m-%d %H:%M:%S')"
-          echo "🌐 Chrome path: $CHROME_PATH"
-          echo "🖥️  Running tests with headless Chrome via Cuprite"
-          echo "⚙️  Chrome version: $($CHROME_PATH --version)"
-          
-          # Run E2E tests - modern Chrome headless doesn't need xvfb
-          bundle exec rspec spec/system/trips_management_spec.rb:14 \
-            --format documentation \
-            --profile 10 \
-            --order defined
-          
-          echo "✅ Finished E2E tests at $(date '+%Y-%m-%d %H:%M:%S')"
+        run: bin/rails spec
         env:
-          # Ensure RAILS_ENV is test
           RAILS_ENV: test
-          # CI flag is already set at job level
 
       - name: Upload E2E test coverage
         uses: actions/upload-artifact@v4
@@ -217,10 +168,10 @@ jobs:
           path: coverage/
           retention-days: 7
 
-      - name: Upload E2E test screenshots
+      - name: Keep screenshots from failed system tests
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: e2e-test-screenshots
-          path: tmp/screenshots/
-          retention-days: 7
+          name: screenshots
+          path: ${{ github.workspace }}/tmp/capybara
+          if-no-files-found: ignore
