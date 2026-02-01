@@ -86,11 +86,14 @@ class PreferencesController < ApplicationController
   def preferences_params
     # Fetch preferences, default to empty hash if not present
     prefs = params.fetch(:preferences, {})
-    permitted = prefs.permit(:budget, :accommodation, :activities, :eating_habits)
+
+    # Permit activities as both string (JSON API) and array (HTML form checkboxes)
+    permitted = prefs.permit(:budget, :accommodation, :eating_habits, :activities, activities: [])
     result = permitted.to_h
 
     # Convert activities array to comma-separated string if it's an array
     # This handles form checkboxes that submit as arrays
+    # Note: activities might be a string (from JSON) or array (from form checkboxes)
     if result[:activities].is_a?(Array)
       # Filter out empty strings (from hidden field)
       activities_array = result[:activities].reject(&:blank?)
